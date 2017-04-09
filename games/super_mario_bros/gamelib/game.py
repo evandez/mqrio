@@ -350,7 +350,11 @@ class Game(object):
         if not continuing:
             stop_music()
 
-        self.main_loop()
+        # For mqrio, we cannot have the game start on construction.
+        # We must be able to control when the game starts. This means that all
+        # driver scripts for Super Mario Bros will not work unless this line
+        # is uncommented.
+        # self.main_loop()
 
     def end(self):
         self.running = 0
