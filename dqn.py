@@ -17,4 +17,4 @@ class DeepQLearner(object):
             The next action to perform.
         """
         print 'Stepping with frame', frame, 'and reward', reward
-    
+        return []

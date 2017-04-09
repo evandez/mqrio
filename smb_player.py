@@ -30,18 +30,18 @@ class SMBPlayer(PyGamePlayer):
     def get_feedback(self):
         """Override of get_feedback from PyGamePlayer.
 
-        For now, just returns the game score.
+        For now, just returns the game score and whether or not game is over.
         """
         print 'Getting the feedback...'
         reward = self.game.score - self.last_score
         self.last_score = self.game.score
-        return reward
+        return (reward, self.game.player.alive())
 
 if __name__ == '__main__':
+    pygame.init()
     game = Game(pygame.display.set_mode((640, 480)))
     player = SMBPlayer(game)
 
     # Start the game.
-    pygame.init()
     Thread(target=game.main_loop).start()
     player.start()

@@ -95,7 +95,7 @@ class Menu(object):
         self.menu.update(events)
         self.menu.draw(self.screen)
         self.main_loop()    
-  
+
     def main_loop(self):
         while 1:
             self.clock.tick(30)
