@@ -5,7 +5,7 @@ from games.super_mario_bros.gamelib.game import Game
 from PyGamePlayer.pygame_player import PyGamePlayer
 from dqn import DeepQLearner
 
-SMB_ACTIONS = [pgc.K_RIGHT, pgc.K_LEFT, pgc.K_z]
+SMB_ACTIONS = [pgc.K_z, pgc.K_RIGHT, pgc.K_LEFT]
 
 class SMBPlayer(PyGamePlayer):
     """Simple implementation of PyGamePlayer for Super Mario Bros."""
