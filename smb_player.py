@@ -33,7 +33,6 @@ class SMBPlayer(PyGamePlayer):
 
         For now, just returns the game score and whether or not game is over.
         """
-        print pg.key.get_pressed()
         reward = self.game.score - self.last_score
         self.last_score = self.game.score
         return (reward, self.game.player.alive())
