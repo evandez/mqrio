@@ -1,9 +1,10 @@
 """Interfaces for Deep Q-Network."""
+import tensorflow as tf
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self):
-        print 'Initializing Deep Q-Network...'
+    def __init__(self, actions):
+        self.actions = actions
 
     def step(self, frame, reward):
         """Steps the training algorithm given the current frame and previous reward.
@@ -16,5 +17,4 @@ class DeepQLearner(object):
         Returns:
             The next action to perform.
         """
-        print 'Stepping with frame', frame, 'and reward', reward
-        return []
+        return [self.actions[0]]
