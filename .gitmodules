@@ -1,0 +1,3 @@
+[submodule "PyGamePlayer"]
+	path = PyGamePlayer/
+	url = git://github.com/DanielSlater/PyGamePlayer.git
