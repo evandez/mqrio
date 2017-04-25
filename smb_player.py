@@ -3,9 +3,9 @@ from threading import Thread
 import pygame as pg, pygame.constants as pgc
 from games.super_mario_bros.gamelib.game import Game
 from PyGamePlayer.pygame_player import PyGamePlayer
-from dqn import DeepQLearner
+from qlearn import DeepQLearner
 
-SMB_ACTIONS = [pgc.K_z, pgc.K_RIGHT, pgc.K_LEFT]
+ACTIONS = [pgc.K_z, pgc.K_RIGHT, pgc.K_LEFT]
 
 class SMBPlayer(PyGamePlayer):
     """Simple implementation of PyGamePlayer for Super Mario Bros."""
@@ -22,11 +22,11 @@ class SMBPlayer(PyGamePlayer):
         self.last_score = 0
 
         # Q approximator.
-        self.dqn = DeepQLearner(SMB_ACTIONS)
+        self.dql = DeepQLearner(ACTIONS)
 
     def get_keys_pressed(self, screen_array, feedback, terminal):
         """Override of get_keys_pressed from PyGamePlayer."""
-        return self.dqn.step(screen_array, feedback)
+        return self.dql.step(screen_array, feedback, terminal)
 
     def get_feedback(self):
         """Override of get_feedback from PyGamePlayer.
