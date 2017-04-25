@@ -79,7 +79,7 @@ class DeepQLearner(object):
         Args:
             frame: The current frame.
         """
-        return self.actions[np.argmax(self.target_net.compute_q(frame), 1)]
+        return self.actions[np.argmax(self.target_net.compute_q(frame))]
 
     def random_action(self):
         """Returns a random action to perform."""
