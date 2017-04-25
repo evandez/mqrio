@@ -1,3 +1,6 @@
 [submodule "PyGamePlayer"]
-	path = PyGamePlayer/
-	url = git://github.com/DanielSlater/PyGamePlayer.git
+	path = PyGamePlayer
+	url = https://github.com/DanielSlater/PyGamePlayer.git
+[submodule "games/flappy_bird"]
+	path = games/flappy_bird
+	url = https://github.com/sourabhv/FlapPyBird.git
