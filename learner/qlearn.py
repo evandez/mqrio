@@ -41,9 +41,13 @@ class DeepQLearner(object):
         Returns:
             The preprocessed frame.
         """
-        proc_frame = [px / 255.0 for px in np.amax(imresize(frame, (84, 84)), axis=2)]
-        prev_frames = self.transitions[-1]['input'] if len(self.transitions) else [proc_frame]*3
-        return np.append(prev_frames[-3:], [proc_frame], axis=0)
+        proc_frame = np.reshape(
+            [px / 255.0 for px in np.amax(imresize(frame, (84, 84)), axis=2)],
+            (84, 84, 1))
+        if not len(self.transitions):
+            return np.repeat(proc_frame, 4, axis=2)
+        else:
+            return np.append(proc_frame, self.transitions[-1]['input'][:, :, -3:], axis=2)
 
     def remember_transition(self, time, pre_frame, action, reward, terminal):
         """Returns the transition dictionary for the given data.
@@ -142,6 +146,6 @@ class DeepQLearner(object):
 
         # Select the next action.
         proc_frame = self.preprocess(frame)
-        action = self.random_action() if self.do_explore() else self.best_action(frame)
+        action = self.random_action() if self.do_explore() else self.best_action(proc_frame)
         self.remember_transition(self.iteration, proc_frame, action, reward, terminal)
         return [action]

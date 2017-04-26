@@ -346,7 +346,7 @@ class Game(object):
             self.world2_5()
             if continuing:
                 self.bg = load_image("background-2.png")
-           
+
         if not continuing:
             stop_music()
 

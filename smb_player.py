@@ -3,7 +3,7 @@ from threading import Thread
 import pygame as pg, pygame.constants as pgc
 from games.super_mario_bros.gamelib.game import Game
 from PyGamePlayer.pygame_player import PyGamePlayer
-from qlearn import DeepQLearner
+from learner.qlearn import DeepQLearner
 
 ACTIONS = [pgc.K_z, pgc.K_RIGHT, pgc.K_LEFT]
 
@@ -35,7 +35,7 @@ class SMBPlayer(PyGamePlayer):
         """
         reward = self.game.score - self.last_score
         self.last_score = self.game.score
-        return (reward, self.game.player.alive())
+        return (reward, not self.game.player.alive())
 
 if __name__ == '__main__':
     pg.init()

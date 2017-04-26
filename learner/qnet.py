@@ -8,6 +8,7 @@ class QNet(object):
     The network is structure is fixed, aside from the output width, which depends
     on the number of actions necessary to play a given game.
     """
+
     def __init__(self, output_width):
         """Initializes the TensorFlow graph.
 
@@ -18,7 +19,7 @@ class QNet(object):
 
         self.graph = tf.Graph()
         with self.graph.as_default():
-            self.graph_in = tf.placeholder(tf.float32, shape=[84, 84, 4])
+            self.graph_in = tf.placeholder(tf.float32, shape=[None, 84, 84, 4])
             conv_in = tf.reshape(self.graph_in, [-1, 84, 84, 4])
 
             w_conv1 = QNet._weight_variable([8, 8, 4, 32])
@@ -79,8 +80,7 @@ class QNet(object):
         Returns:
             A TensorFlow weight variable of the given size.
         """
-        initial = tf.truncated_normal(shape, stddev=0.1)
-        return tf.Variable(initial)
+        return tf.Variable(tf.truncated_normal(shape, stddev=0.1))
 
     @staticmethod
     def _bias_variable(shape):
@@ -92,8 +92,7 @@ class QNet(object):
         Returns:
             A TensorFlow bias variable of the specified shape.
         """
-        initial = tf.constant(0.1, shape=shape)
-        return tf.Variable(initial)
+        return tf.Variable(tf.constant(0.1, shape=shape))
 
     def save(self, filename):
         """Saves this network's current graph variables.
