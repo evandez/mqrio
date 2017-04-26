@@ -1,10 +1,10 @@
 """Interfaces for Deep Q-Network."""
 from collections import deque
 import random
-import config as cg
+from learner import config as cg
+from learner.qnet import QNet
 import numpy as np
 from scipy.misc import imresize
-from qnet import QNet
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
@@ -49,23 +49,31 @@ class DeepQLearner(object):
         else:
             return np.append(proc_frame, self.transitions[-1]['input'][:, :, -3:], axis=2)
 
-    def remember_transition(self, time, pre_frame, action, reward, terminal):
-        """Returns the transition dictionary for the given data.
+    def remember_transition(self, pre_frame, action, terminal):
+        """Returns the transition dictionary for the given data. Defer recording the
+        reward until it is observed.
 
         Args:
-            time: The current time step.
             pre_frame: The frame at the current time.
-            action: The action(s) taken at current time.
-            reward: The reward received at current time (prior to taken the action above).
+            action: The index of the action(s) taken at current time.
             terminal: True if the action at current time led to episode termination.
         """
         self.transitions.append({
-            'time': time,
+            'time': len(self.transitions),
             'input': pre_frame,
-            'action': action,
-            'reward': reward,
+            'action': self.actions.index(action),
             'terminal': terminal
         })
+
+    def observe_reward(self, reward):
+        """Records the reward from the previous action. Clips as necessary.
+
+        Args:
+            reward: The reward from the previous transition.
+        """
+        if not len(self.transitions):
+            return
+        self.transitions[-1]['reward'] = np.clip(reward, -1, 1)
 
     def do_explore(self):
         """Returns true if a random action should be taken, false otherwise.
@@ -99,9 +107,9 @@ class DeepQLearner(object):
             The target reward.
         """
         target_reward = trans['reward']
-        if not trans['terminal'] and trans['time'] != self.iteration - 1:
-            next_input = self.transitions[trans['time']]['input']
-            target_reward += cg.DISCOUNT * np.amax(self.target_net.compute_q(next_input))
+        if not trans['terminal'] and trans['time'] < len(self.transitions) - 1:
+            next_input = self.transitions[trans['time']+1]['input']
+            target_reward += cg.DISCOUNT * self.target_net.compute_q(next_input)[trans['action']]
         return target_reward
 
     def step(self, frame, reward, terminal):
@@ -118,14 +126,12 @@ class DeepQLearner(object):
         """
         self.iteration += 1
 
-        # Clip reward to limit gradient scale later on.
-        reward = np.clip(reward, -1, 1)
-
         # Handle burn in period.
         if self.iteration <= cg.REPLAY_START_SIZE:
+            self.observe_reward(reward)
             proc_frame = self.preprocess(frame)
             action = self.random_action()
-            self.remember_transition(self.iteration, proc_frame, action, reward, terminal)
+            self.remember_transition(proc_frame, action, terminal)
             return [action]
 
         # Repeat previous action for some number of iterations.
@@ -133,6 +139,9 @@ class DeepQLearner(object):
         # this frame and just keep doing what we're doing.
         if self.iteration % cg.ACTION_REPEAT == 0:
             return [self.transitions[-1]['action']]
+
+        # Observe the previous reward.
+        self.observe_reward(reward)
 
         # Update network from the previous action.
         minibatch = random.sample(self.transitions, cg.BATCH_SIZE)
@@ -147,5 +156,5 @@ class DeepQLearner(object):
         # Select the next action.
         proc_frame = self.preprocess(frame)
         action = self.random_action() if self.do_explore() else self.best_action(proc_frame)
-        self.remember_transition(self.iteration, proc_frame, action, reward, terminal)
+        self.remember_transition(proc_frame, action, terminal)
         return [action]

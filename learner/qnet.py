@@ -1,5 +1,5 @@
 """Thin wrapper around TensorFlow logic."""
-import config as cg
+import learner.config as cg
 import tensorflow as tf
 
 class QNet(object):
@@ -20,11 +20,10 @@ class QNet(object):
         self.graph = tf.Graph()
         with self.graph.as_default():
             self.graph_in = tf.placeholder(tf.float32, shape=[None, 84, 84, 4])
-            conv_in = tf.reshape(self.graph_in, [-1, 84, 84, 4])
 
             w_conv1 = QNet._weight_variable([8, 8, 4, 32])
             b_conv1 = QNet._bias_variable([32])
-            conv_layer1 = tf.nn.relu(QNet._conv2d(conv_in, w_conv1, 4) + b_conv1)
+            conv_layer1 = tf.nn.relu(QNet._conv2d(self.graph_in, w_conv1, 4) + b_conv1)
 
             w_conv2 = QNet._weight_variable([4, 4, 32, 64])
             b_conv2 = QNet._bias_variable([64])
@@ -131,18 +130,18 @@ class QNet(object):
         """Forward-propagates the given input and returns the array of outputs.
 
         Args:
-            net_in: Image to forward-prop through the network. Must be 84x84x4.
+            net_in: Image to forward-prop through the network. Must be 1x84x84x4.
 
         Returns:
             The array of network outputs.
         """
-        return self.sess.run(self.graph_out, feed_dict={self.graph_in:net_in})
+        return self.sess.run(self.graph_out, feed_dict={self.graph_in:[net_in]})[0]
 
     def update(self, batch_input, batch_target):
         """Updates the network with the given batch input/target values using RMSProp.
 
         Args:
-            batch_input: Set of 84x84x4 network inputs.
+            batch_input: Set of Nx84x84x4 network inputs, where N is the batch size.
             batch_target: Corresponding target Q values for each input.
         """
         self.sess.run(
