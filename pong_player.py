@@ -3,7 +3,8 @@ import pygame.constants as pgc
 from PyGamePlayer.pygame_player import PyGamePlayer
 from learner.qlearn import DeepQLearner
 
-ACTIONS = [pgc.K_DOWN, pgc.K_UP]
+# Possible actions for Pong. Last one is equivalent to "do noting."
+ACTIONS = [pgc.K_DOWN, pgc.K_UP, pgc.K_UNKNOWN]
 
 class PongPlayer(PyGamePlayer):
     def __init__(self, force_game_fps=10, run_real_time=False):

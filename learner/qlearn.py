@@ -125,6 +125,10 @@ class DeepQLearner(object):
         """
         self.iteration += 1
 
+        # Log if necessary.
+        if self.iteration % cg.LOGGING_FREQUENCY == 0:
+            self.log_status()
+
         # Handle burn in period.
         if self.iteration <= cg.REPLAY_START_SIZE:
             self.observe_reward(reward)
@@ -154,3 +158,17 @@ class DeepQLearner(object):
         action = self.random_action() if self.do_explore() else self.best_action(proc_frame)
         self.remember_transition(proc_frame, action, terminal)
         return [action]
+
+    def log_status(self):
+        """Print the current status of the Q-learner."""
+        print '\n\t\t-----------------\t\t'
+        print 'Iteration:', self.iteration
+        print 'Replay capacity:', len(self.transitions),
+        print '( burn in', ('not done' if self.iteration <= cg.REPLAY_START_SIZE else 'done'), ')'
+        print 'Exploration rate:', self.exploration_rate,
+        print '(', ('still' if len(self.transitions) <= cg.FINAL_EXPLORATION_FRAME else 'done'),
+        print 'annealing )'
+
+        # If we're using the network, print a sample of the output.
+        if self.iteration >= cg.REPLAY_START_SIZE:
+            print 'Sample Q output:', self.net.compute_q(self.transitions[-1]['input'])
