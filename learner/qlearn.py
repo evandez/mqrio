@@ -106,7 +106,7 @@ class DeepQLearner(object):
             The target reward.
         """
         target_reward = trans['reward']
-        if not trans['terminal'] and trans['time'] != self.transitions[-1]['time']:
+        if not trans['terminal'] and trans['time'] < len(self.transitions) - 1:
             next_input = self.transitions[trans['time']+1]['input']
             target_reward += cg.DISCOUNT * np.amax(self.net.compute_q(next_input))
         return target_reward
