@@ -53,14 +53,14 @@ while done==False:
         if event.type == pygame.QUIT: # If user clicked close
             done = True # Flag that we are done so we exit this loop
         if event.type == KEYDOWN:
-            if event.key == K_UP:
+            if event.key == K_UP or event.key == K_w:
                 bar1_move = -ai_speed
-            elif event.key == K_DOWN:
+            elif event.key == K_DOWN or event.key == K_s:
                 bar1_move = ai_speed
         elif event.type == KEYUP:
-            if event.key == K_UP:
+            if event.key == K_UP or event.key == K_w:
                 bar1_move = 0.
-            elif event.key == K_DOWN:
+            elif event.key == K_DOWN or event.key == K_s:
                 bar1_move = 0.
             
     score1 = font.render(str(bar1_score), True,(255,255,255))

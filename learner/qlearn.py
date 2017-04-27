@@ -15,8 +15,7 @@ class DeepQLearner(object):
             actions: List of viable actions learner can make. (Must be PyGame constants.)
         """
         self.actions = actions
-        self.target_net = QNet(len(actions))
-        self.training_net = self.target_net.deep_copy()
+        self.net = QNet(len(actions))
         self.exploration_rate = cg.EXPLORATION_START_RATE
         self.iteration = -1
 
@@ -79,10 +78,10 @@ class DeepQLearner(object):
         """Returns true if a random action should be taken, false otherwise.
         Decays the exploration rate if the final exploration frame has not been reached.
         """
-        if self.iteration <= cg.FINAL_EXPLORATION_FRAME:
+        if len(self.transitions) <= cg.FINAL_EXPLORATION_FRAME:
             self.exploration_rate -= (
                 float(cg.EXPLORATION_START_RATE - cg.EXPLORATION_END_RATE)
-                / cg.FINAL_EXPLORATION_FRAME)
+                / (cg.FINAL_EXPLORATION_FRAME - cg.REPLAY_START_SIZE))
         return random.random() < self.exploration_rate
 
     def best_action(self, frame):
@@ -91,14 +90,14 @@ class DeepQLearner(object):
         Args:
             frame: The current frame.
         """
-        return self.actions[np.argmax(self.target_net.compute_q(frame))]
+        return self.actions[np.argmax(self.net.compute_q(frame))]
 
     def random_action(self):
         """Returns a random action to perform."""
         return self.actions[int(random.random() * len(self.actions))]
 
     def compute_target_reward(self, trans):
-        """Computes the target reward for the given transition using the target Q-network.
+        """Computes the target reward for the given transition.
 
         Args:
             trans: The transition for which to compute the target reward.
@@ -107,9 +106,9 @@ class DeepQLearner(object):
             The target reward.
         """
         target_reward = trans['reward']
-        if not trans['terminal'] and trans['time'] < len(self.transitions) - 1:
+        if not trans['terminal'] and trans['time'] != self.transitions[-1]['time']:
             next_input = self.transitions[trans['time']+1]['input']
-            target_reward += cg.DISCOUNT * self.target_net.compute_q(next_input)[trans['action']]
+            target_reward += cg.DISCOUNT * np.amax(self.net.compute_q(next_input))
         return target_reward
 
     def step(self, frame, reward, terminal):
@@ -145,13 +144,10 @@ class DeepQLearner(object):
 
         # Update network from the previous action.
         minibatch = random.sample(self.transitions, cg.BATCH_SIZE)
-        batch_input = [trans['input'] for trans in minibatch]
-        batch_target = [self.compute_target_reward(trans) for trans in minibatch]
-        self.training_net.update(batch_input, batch_target)
-
-        # If it's time to update the target network, do so.
-        if self.iteration % cg.UPDATE_FREQUENCY == 0:
-            self.target_net = self.training_net.deep_copy()
+        batch_frames = [trans['input'] for trans in minibatch]
+        batch_actions = [trans['action'] for trans in minibatch]
+        batch_targets = [self.compute_target_reward(trans) for trans in minibatch]
+        self.net.update(batch_frames, batch_actions, batch_targets)
 
         # Select the next action.
         proc_frame = self.preprocess(frame)
