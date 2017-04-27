@@ -161,13 +161,18 @@ class DeepQLearner(object):
 
     def log_status(self):
         """Print the current status of the Q-learner."""
-        print('\n\t\t-----------------\t\t')
-        print('Iteration:', self.iteration)
-        print('Replay capacity:', len(self.transitions))
-        print('( burn in', ('not done' if self.iteration <= cg.REPLAY_START_SIZE else 'done'), ')')
-        print('Exploration rate:', self.exploration_rate)
-        print('(', ('still' if len(self.transitions) <= cg.FINAL_EXPLORATION_FRAME else 'done'))
-        print('annealing )')
+        fmt = """
+        \t\t-----------------\t\t
+        Iteration: %d
+        Replay capacity: %d (burn in %s)
+        Exploration rate: %.4f (%s annealing)"""
+        print(fmt % (
+            self.iteration,
+            len(self.transitions),
+            'not done' if self.iteration <= cg.REPLAY_START_SIZE else 'done',
+            self.exploration_rate,
+            'still' if len(self.transitions) <= cg.FINAL_EXPLORATION_FRAME else 'done'
+        ))
 
         # If we're using the network, print a sample of the output.
         if self.iteration >= cg.REPLAY_START_SIZE:
