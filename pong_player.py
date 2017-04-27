@@ -7,6 +7,7 @@ from learner.qlearn import DeepQLearner
 ACTIONS = [pgc.K_DOWN, pgc.K_UP, pgc.K_UNKNOWN]
 
 class PongPlayer(PyGamePlayer):
+    """Implementation of PyGamePlayer for Pong."""
     def __init__(self, force_game_fps=10, run_real_time=False):
         """
         Example class for playing Pong
@@ -34,7 +35,5 @@ class PongPlayer(PyGamePlayer):
         super(PongPlayer, self).start()
         import games.pong.pong
 
-
 if __name__ == '__main__':
-    player = PongPlayer()
-    player.start()
+    PongPlayer().start()

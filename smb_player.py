@@ -1,6 +1,7 @@
 """Controller for Super Mario Bros."""
 from threading import Thread
-import pygame as pg, pygame.constants as pgc
+import pygame as pg
+import pygame.constants as pgc
 from games.super_mario_bros.gamelib.game import Game
 from PyGamePlayer.pygame_player import PyGamePlayer
 from learner.qlearn import DeepQLearner
