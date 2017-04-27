@@ -28,6 +28,8 @@ class QNet(object):
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
 
+        self.saver = tf.train.Saver()
+
     def __del__(self):
         """Closes the TensorFlow session, freeing resources."""
         self.sess.close()
@@ -42,6 +44,22 @@ class QNet(object):
             The array of network outputs.
         """
         return self.sess.run(self.graph_out, feed_dict={self.graph_in:[net_in]})
+
+    def save(self, chk_path):
+        """Save the current network parameters in the checkpoint path.
+
+        Args:
+            chk_path: Path to store checkpoint files.
+        """
+        self.saver.save(self.sess, chk_path)
+
+    def restore(self, chk_path):
+        """Restore the network from the checkpoint path.
+
+        Args:
+            chk_path: Path from which to restore weights.
+        """
+        self.saver.restore(self.sess, chk_path)
 
     def update(self, batch_frames, batch_actions, batch_targets):
         """Updates the network with the given batch input/target values using RMSProp.

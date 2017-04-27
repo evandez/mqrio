@@ -30,10 +30,13 @@ ACTION_REPEAT = 4
 
 # Number of iterations for which we take random actions, to build a foundation
 # for our state-action-reward memory.
-REPLAY_START_SIZE = 50000
+REPLAY_START_SIZE = 50 # 50000
 
 # Maximum size of the replay memory.
 REPLAY_MEMORY_SIZE = 100000
 
 # How often the Q-learner should log its state.
 LOGGING_FREQUENCY = 1000
+
+# How often the Q-learner should save its parameters.
+SAVING_FREQUENCY = 100 # 1000

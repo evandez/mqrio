@@ -1,6 +1,7 @@
 """Interfaces for Deep Q-Network."""
 from collections import deque
 import random
+import os
 from learner import config as cg
 from learner.qnet import QNet
 import numpy as np
@@ -8,16 +9,25 @@ from scipy.misc import imresize
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions):
+    def __init__(self, actions, chk_path='deep_q_model', save=False, restore=False):
         """Intializes the TensorFlow graph.
 
         Args:
             actions: List of viable actions learner can make. (Must be PyGame constants.)
         """
+        # Initialize state variables.
         self.actions = actions
         self.net = QNet(len(actions))
         self.exploration_rate = cg.EXPLORATION_START_RATE
         self.iteration = -1
+
+        # Handle network save/restore.
+        self.chk_path = chk_path
+        self.save = save
+        if restore:
+            if not os.path.exists(chk_path):
+                raise Exception('No such checkpoint path %s!' % chk_path)
+            self.net.restore(chk_path)
 
         # Store all previous transitions in a deque to allow for efficient
         # popping from the front and to allow for size management.
@@ -146,6 +156,10 @@ class DeepQLearner(object):
         # Observe the previous reward.
         self.observe_reward(reward)
 
+        # Save network if necessary before updating.
+        if self.save and self.iteration % cg.SAVING_FREQUENCY == 0:
+            self.net.save(self.chk_path)
+
         # Update network from the previous action.
         minibatch = random.sample(self.transitions, cg.BATCH_SIZE)
         batch_frames = [trans['input'] for trans in minibatch]
@@ -177,4 +191,3 @@ class DeepQLearner(object):
         # If we're using the network, print a sample of the output.
         if self.iteration >= cg.REPLAY_START_SIZE:
             print('Sample Q output:', self.net.compute_q(self.transitions[-1]['input']))
-
