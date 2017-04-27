@@ -19,6 +19,9 @@ def construct_graph(output_width):
 
     Args:
         output_width: The number of output units for the graph.
+
+    Returns:
+        The graph input and output tensors (in that order).
     """
     graph_in = tf.placeholder(tf.float32, shape=[None, 84, 84, 4], name=G_IN)
 
@@ -41,7 +44,7 @@ def construct_graph(output_width):
 
     w_fc2 = _weight_variable([512, output_width], G_FC2_W)
     b_fc2 = _bias_variable([output_width], G_FC2_B)
-    graph_out = tf.nn.relu(tf.matmul(fc_layer1, w_fc2) + b_fc2)
+    graph_out = tf.nn.relu(tf.matmul(fc_layer1, w_fc2) + b_fc2, name=G_OUT)
     return graph_in, graph_out
 
 def _conv2d(data, weights, stride):
