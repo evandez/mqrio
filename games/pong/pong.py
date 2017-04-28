@@ -124,7 +124,6 @@ while done==False:
                 bar1_hit_count += 1
             else:
                 bar2_hit_count += 1
-    print(bar1_hit_count, bar2_hit_count)
     if circle_x < 5.:
         bar2_score += 1
         circle_x, circle_y = 320., 232.5
