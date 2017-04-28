@@ -12,7 +12,6 @@ import numpy
 import pygame
 from pygame.locals import *
 from sys import exit
-import random
 import pygame.surfarray as surfarray
 
 pygame.init()
@@ -45,7 +44,7 @@ bar1_score, bar2_score = 0,0
 
 #clock and font objects
 clock = pygame.time.Clock()
-font = pygame.font.SysFont("calibri",40)
+font = pygame.font.SysFont("calibri",10)
 
 done = False
 while done==False:       
