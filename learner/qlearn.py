@@ -100,15 +100,18 @@ class DeepQLearner(object):
             return
         self.transitions[-1]['reward'] = np.clip(reward, -1, 1)
 
+    def is_burning_in(self):
+        return len(self.transitions) < cg.REPLAY_START_SIZE
+
     def do_explore(self):
         """Returns true if a random action should be taken, false otherwise.
         Decays the exploration rate if the final exploration frame has not been reached.
         """
-        if len(self.transitions) <= cg.FINAL_EXPLORATION_FRAME and self.iteration >= cg.REPLAY_START_SIZE:
-            self.exploration_rate -= (
-                float(cg.EXPLORATION_START_RATE - cg.EXPLORATION_END_RATE)
-                / (cg.FINAL_EXPLORATION_FRAME - cg.REPLAY_START_SIZE))
-        return random.random() < self.exploration_rate or self.iteration < cg.REPLAY_START_SIZE
+        if not self.is_burning_in():
+            self.exploration_rate = max(cg.EXPLORATION_END_RATE,
+                float(cg.FINAL_EXPLORATION_FRAME - self.iteration) 
+                / (cg.FINAL_EXPLORATION_FRAME - cg.ACTION_REPEAT * cg.REPLAY_START_SIZE))
+        return random.random() < self.exploration_rate or self.is_burning_in()
 
     def best_action(self, frame):
         """Returns the best action to perform.
@@ -171,7 +174,7 @@ class DeepQLearner(object):
         self.observe_reward(self.repeating_action_rewards)
 
         # if not burning in, update network
-        if self.iteration > cg.REPLAY_START_SIZE:
+        if not self.is_burning_in():
             # Update network from the previous action.
             minibatch = random.sample(self.transitions, cg.BATCH_SIZE)
             batch_frames = [trans['input'] for trans in minibatch]
@@ -204,9 +207,9 @@ class DeepQLearner(object):
         print(fmt % (
             self.iteration,
             len(self.transitions),
-            'not done' if self.iteration <= cg.REPLAY_START_SIZE else 'done',
+            'not done' if self.is_burning_in() else 'done',
             self.exploration_rate,
-            'still' if len(self.transitions) <= cg.FINAL_EXPLORATION_FRAME else 'done'
+            'still' if self.exploration_rate > cg.EXPLORATION_END_RATE else 'done'
         ))
 
         # If we're using the network, print a sample of the output.
