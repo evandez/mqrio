@@ -1,7 +1,7 @@
 """Defines hyperparameters and runtime settings for the Deep Q-Network."""
 
 # The network learning rate.
-LEARNING_RATE = 0.00025
+LEARNING_RATE = 1e-6
 
 # Initial probability of the learner taking a random action.
 # This probability decays over time as the learner experiences the world.
@@ -43,3 +43,5 @@ LOGGING_FREQUENCY = 1000
 
 # How often the Q-learner should save its parameters.
 SAVING_FREQUENCY = 1000
+
+SCORING_FUNCTION = 'HITS'

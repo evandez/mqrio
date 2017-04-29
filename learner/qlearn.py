@@ -9,7 +9,7 @@ from scipy.misc import imresize
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='deep_q_model', save=False, restore=False):
+    def __init__(self, actions, chk_path='deep_q_model', save=True, restore=False):
         """Intializes the TensorFlow graph.
 
         Args:
