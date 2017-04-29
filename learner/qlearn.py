@@ -104,11 +104,11 @@ class DeepQLearner(object):
         """Returns true if a random action should be taken, false otherwise.
         Decays the exploration rate if the final exploration frame has not been reached.
         """
-        if len(self.transitions) <= cg.FINAL_EXPLORATION_FRAME:
+        if len(self.transitions) <= cg.FINAL_EXPLORATION_FRAME and self.iteration >= cg.REPLAY_START_SIZE:
             self.exploration_rate -= (
                 float(cg.EXPLORATION_START_RATE - cg.EXPLORATION_END_RATE)
                 / (cg.FINAL_EXPLORATION_FRAME - cg.REPLAY_START_SIZE))
-        return random.random() < self.exploration_rate or self.iteration < cg.FINAL_EXPLORATION_FRAME
+        return random.random() < self.exploration_rate or self.iteration < cg.REPLAY_START_SIZE
 
     def best_action(self, frame):
         """Returns the best action to perform.
@@ -198,7 +198,7 @@ class DeepQLearner(object):
         \t\t-----------------\t\t
         Iteration: %d
         Replay capacity: %d (burn in %s)
-        Exploration rate: %.4f (%s annealing)"""
+        Exploration rate: %.9f (%s annealing)"""
         print(fmt % (
             self.iteration,
             len(self.transitions),

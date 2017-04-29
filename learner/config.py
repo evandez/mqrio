@@ -14,7 +14,7 @@ EXPLORATION_END_RATE = 0.1
 # The number of frames that pass before the learner's exploration rate
 # decays to its final value. Determines the rate at which the exploration
 # rate decays.
-FINAL_EXPLORATION_FRAME = 1000000
+FINAL_EXPLORATION_FRAME = 1e7
 
 # When predicting the "value" of a state and action, we discount the value
 # of potential future rewards by multiplying by this constant.
@@ -33,15 +33,15 @@ STATE_FRAMES = 4
 
 # Number of iterations for which we take random actions, to build a foundation
 # for our state-action-reward memory.
-REPLAY_START_SIZE = 50000
+REPLAY_START_SIZE = 5e5
 
 # Maximum size of the replay memory.
-REPLAY_MEMORY_SIZE = 100000
+REPLAY_MEMORY_SIZE = int(1e7)
 
 # How often the Q-learner should log its state.
-LOGGING_FREQUENCY = 100
+LOGGING_FREQUENCY = 1e2
 
 # How often the Q-learner should save its parameters.
-SAVING_FREQUENCY = 1000
+SAVING_FREQUENCY = 1e3
 
 SCORING_FUNCTION = 'HITS'
