@@ -22,8 +22,7 @@ class QNet(object):
         self.action_idxs = tf.placeholder(tf.int32)
         actual_reward = tf.gather_nd(self.graph_out, self.action_idxs)
         loss = tf.nn.l2_loss(self.target_reward - actual_reward)
-        clipped_loss = tf.clip_by_value(loss, -1, 1)
-        self.optimizer = tf.train.AdamOptimizer(cg.LEARNING_RATE).minimize(clipped_loss)
+        self.optimizer = tf.train.AdamOptimizer(cg.LEARNING_RATE).minimize(loss)
 
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())

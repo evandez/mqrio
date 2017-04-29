@@ -70,7 +70,7 @@ def _weight_variable(shape, name):
     Returns:
         A TensorFlow weight variable of the given size.
     """
-    return tf.Variable(tf.truncated_normal(shape, stddev=0.1), name=name)
+    return tf.Variable(tf.truncated_normal(shape, stddev=0.01), name=name)
 
 def _bias_variable(shape, name):
     """Returns a TensforFlow 2D bias variable.
@@ -82,4 +82,4 @@ def _bias_variable(shape, name):
     Returns:
         A TensorFlow bias variable of the specified shape.
     """
-    return tf.Variable(tf.constant(0.1, shape=shape), name=name)
+    return tf.Variable(tf.constant(0.01, shape=shape), name=name)

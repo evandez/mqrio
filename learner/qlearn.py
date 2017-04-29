@@ -9,7 +9,7 @@ from scipy.misc import imresize
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=True):
+    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=False):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -156,14 +156,13 @@ class DeepQLearner(object):
             action = self.random_action()
             self.remember_transition(proc_frame, action, terminal)
             return [action]
-        
-        # Observe the previous reward.
-        self.observe_reward(self.repeating_action_rewards)
-        self.repeating_action_rewards = 0
 
         # Save network if necessary before updating.
         if self.save and self.iteration % cg.SAVING_FREQUENCY == 0:
             self.net.save(self.chk_path)
+        
+        # Observe the previous reward.
+        self.observe_reward(self.repeating_action_rewards)
 
         # Update network from the previous action.
         minibatch = random.sample(self.transitions, cg.BATCH_SIZE)
@@ -176,6 +175,10 @@ class DeepQLearner(object):
         proc_frame = self.preprocess(frame)
         action = self.random_action() if self.do_explore() else self.best_action(proc_frame)
         self.remember_transition(proc_frame, action, terminal)
+
+        # reset repeating_action_rewards counter
+        self.repeating_action_rewards = 0
+
         return [action]
 
     def log_status(self):
