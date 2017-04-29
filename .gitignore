@@ -1,1 +1,4 @@
 *.pyc
+*temp*
+*NOTES*
+*deep_q_model*

@@ -2,6 +2,7 @@
 import learner.config as cg
 import learner.graph as graph
 import tensorflow as tf
+import os
 
 class QNet(object):
     """A deep network Q-approximator implemented with TensorFlow.
@@ -51,6 +52,10 @@ class QNet(object):
         Args:
             chk_path: Path to store checkpoint files.
         """
+        # make output directory
+        if not os.path.exists(os.path.dirname('deep_q_model/')):
+            os.makedirs(os.path.dirname('deep_q_model/'))
+
         self.saver.save(self.sess, chk_path)
 
     def restore(self, chk_path):

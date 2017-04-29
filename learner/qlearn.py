@@ -9,7 +9,7 @@ from scipy.misc import imresize
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='deep_q_model', save=True, restore=False):
+    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=False):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -21,6 +21,7 @@ class DeepQLearner(object):
         self.exploration_rate = cg.EXPLORATION_START_RATE
         self.iteration = -1
         self.previous_frames = deque(maxlen=cg.STATE_FRAMES-1)
+        self.repeating_action_rewards = 0
 
         # Handle network save/restore.
         self.chk_path = chk_path
@@ -107,7 +108,7 @@ class DeepQLearner(object):
             self.exploration_rate -= (
                 float(cg.EXPLORATION_START_RATE - cg.EXPLORATION_END_RATE)
                 / (cg.FINAL_EXPLORATION_FRAME - cg.REPLAY_START_SIZE))
-        return random.random() < self.exploration_rate
+        return random.random() < self.exploration_rate or self.iterations < cg.FINAL_EXPLORATION_FRAME
 
     def best_action(self, frame):
         """Returns the best action to perform.
@@ -154,35 +155,29 @@ class DeepQLearner(object):
         if self.iteration % cg.LOGGING_FREQUENCY == 0:
             self.log_status()
 
-        # Handle burn in period.
-        if self.iteration <= cg.REPLAY_START_SIZE:
-            self.observe_reward(reward)
-            proc_frame = self.preprocess(frame)
-            action = self.random_action()
-            self.remember_transition(proc_frame, action, terminal)
-            self.previous_frames.appendleft(frame) # Store this as a previous frame.
-            return [action]
-
         # Repeat previous action for some number of iterations.
         # If we ARE repeating an action, we pretend that we did not see
         # this frame and just keep doing what we're doing.
         if self.iteration % cg.ACTION_REPEAT != 0:
+            self.repeating_action_rewards += reward
             self.previous_frames.appendleft(frame) # Store this as a previous frame.
             return [self.transitions[-1]['action']]
-
-        # Observe the previous reward.
-        self.observe_reward(reward)
 
         # Save network if necessary before updating.
         if self.save and self.iteration % cg.SAVING_FREQUENCY == 0:
             self.net.save(self.chk_path)
 
-        # Update network from the previous action.
-        minibatch = random.sample(self.transitions, cg.BATCH_SIZE)
-        batch_frames = [trans['input'] for trans in minibatch]
-        batch_actions = [trans['action'] for trans in minibatch]
-        batch_targets = [self.compute_target_reward(trans) for trans in minibatch]
-        self.net.update(batch_frames, batch_actions, batch_targets)
+        # Observe the previous reward.
+        self.observe_reward(self.repeating_action_rewards)
+
+        # if not burning in, update network
+        if self.iteration > cg.REPLAY_START_SIZE:
+            # Update network from the previous action.
+            minibatch = random.sample(self.transitions, cg.BATCH_SIZE)
+            batch_frames = [trans['input'] for trans in minibatch]
+            batch_actions = [trans['action'] for trans in minibatch]
+            batch_targets = [self.compute_target_reward(trans) for trans in minibatch]
+            self.net.update(batch_frames, batch_actions, batch_targets)
 
         # Select the next action.
         proc_frame = self.preprocess(frame)
@@ -191,6 +186,9 @@ class DeepQLearner(object):
 
         # Store this frame as a previous frame.
         self.previous_frames.appendleft(frame) # Left frame should be most recent.
+
+        # Reset rewards counter for each group of 4 frames
+        self.repeating_action_rewards = 0
 
         return [action]
 
