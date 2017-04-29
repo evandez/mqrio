@@ -182,12 +182,14 @@ class DeepQLearner(object):
         # Select the next action.
         proc_frame = self.preprocess(frame)
         action = self.random_action() if self.do_explore() else self.best_action(proc_frame)
+
+        # Remember the action and the input frames, reward to be observed later.
         self.remember_transition(proc_frame, action, terminal)
 
         # Store this frame as a previous frame.
         self.previous_frames.appendleft(frame) # Left frame should be most recent.
 
-        # Reset rewards counter for each group of 4 frames
+        # Reset rewards counter for each group of 4 frames.
         self.repeating_action_rewards = 0
 
         return [action]

@@ -1,7 +1,7 @@
 """Defines hyperparameters and runtime settings for the Deep Q-Network."""
 
 # The network learning rate.
-LEARNING_RATE = 1e-6
+LEARNING_RATE = 2.5e-4
 
 # Initial probability of the learner taking a random action.
 # This probability decays over time as the learner experiences the world.
@@ -14,7 +14,7 @@ EXPLORATION_END_RATE = 0.1
 # The number of frames that pass before the learner's exploration rate
 # decays to its final value. Determines the rate at which the exploration
 # rate decays.
-FINAL_EXPLORATION_FRAME = 1e7
+FINAL_EXPLORATION_FRAME = 1e6
 
 # When predicting the "value" of a state and action, we discount the value
 # of potential future rewards by multiplying by this constant.
@@ -33,10 +33,10 @@ STATE_FRAMES = 4
 
 # Number of iterations for which we take random actions, to build a foundation
 # for our state-action-reward memory.
-REPLAY_START_SIZE = 5e5
+REPLAY_START_SIZE = 5e4
 
 # Maximum size of the replay memory.
-REPLAY_MEMORY_SIZE = int(1e7)
+REPLAY_MEMORY_SIZE = int(1e6)
 
 # How often the Q-learner should log its state.
 LOGGING_FREQUENCY = 1e2
