@@ -1,5 +1,5 @@
 """Since we use the same graph for all Q-learners, centralize its construction."""
-import learner.config as cg
+from learner.config import *
 import tensorflow as tf
 
 G_IN = 'frame_input'              # The graph input (84x84x4 frame sets).
@@ -24,9 +24,9 @@ def construct_graph(output_width):
     Returns:
         The graph input and output tensors (in that order).
     """
-    graph_in = tf.placeholder(tf.float32, shape=[None, 84, 84, cg.STATE_FRAMES], name=G_IN)
+    graph_in = tf.placeholder(tf.float32, shape=[None, 84, 84, STATE_FRAMES], name=G_IN)
 
-    w_conv1 = _weight_variable([8, 8, cg.STATE_FRAMES, 32], G_CONV1_W)
+    w_conv1 = _weight_variable([8, 8, STATE_FRAMES, 32], G_CONV1_W)
     b_conv1 = _bias_variable([32], G_CONV1_B)
     conv_layer1 = tf.nn.relu(_conv2d(graph_in, w_conv1, 4) + b_conv1)
 

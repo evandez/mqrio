@@ -2,7 +2,7 @@
 from collections import deque
 import random
 import os
-from learner import config as cg
+from learner.config import *
 from learner.qnet import QNet
 import numpy as np
 from scipy.misc import imresize
@@ -18,9 +18,9 @@ class DeepQLearner(object):
         # Initialize state variables.
         self.actions = actions
         self.net = QNet(len(actions))
-        self.exploration_rate = cg.EXPLORATION_START_RATE
+        self.exploration_rate = EXPLORATION_START_RATE
         self.iteration = -1
-        self.previous_frames = deque(maxlen=cg.STATE_FRAMES-1)
+        self.previous_frames = deque(maxlen=STATE_FRAMES-1)
         self.repeating_action_rewards = 0
 
         # Handle network save/restore.
@@ -41,7 +41,7 @@ class DeepQLearner(object):
         #         'reward': The reward from the previous action.
         #         'terminal': True if the action led to a terminal state.
         #     }
-        self.transitions = deque(maxlen=cg.REPLAY_MEMORY_SIZE)
+        self.transitions = deque(maxlen=REPLAY_MEMORY_SIZE)
 
     def normalize_frame(self, frame):
         """Normalizes the screen array to be 84x84x1, with floating point values in
@@ -67,8 +67,8 @@ class DeepQLearner(object):
             The preprocessed frame.
         """
         proc_frame = self.normalize_frame(frame)
-        if not len(self.transitions) or len(self.previous_frames) < cg.STATE_FRAMES - 1:
-            return np.repeat(proc_frame, cg.STATE_FRAMES, axis=2)
+        if not len(self.transitions) or len(self.previous_frames) < STATE_FRAMES - 1:
+            return np.repeat(proc_frame, STATE_FRAMES, axis=2)
         else:
             for recent_frame in self.previous_frames:
                 proc_frame = np.append(proc_frame, self.normalize_frame(recent_frame), axis=2)
@@ -101,16 +101,16 @@ class DeepQLearner(object):
         self.transitions[-1]['reward'] = np.clip(reward, -1, 1)
 
     def is_burning_in(self):
-        return len(self.transitions) < cg.REPLAY_START_SIZE
+        return len(self.transitions) < REPLAY_START_SIZE
 
     def do_explore(self):
         """Returns true if a random action should be taken, false otherwise.
         Decays the exploration rate if the final exploration frame has not been reached.
         """
-        if not self.is_burning_in():
-            self.exploration_rate = max(cg.EXPLORATION_END_RATE,
-                float(cg.FINAL_EXPLORATION_FRAME - self.iteration) 
-                / (cg.FINAL_EXPLORATION_FRAME - cg.ACTION_REPEAT * cg.REPLAY_START_SIZE))
+        if not self.is_burning_in() and self.exploration_rate > EXPLORATION_END_RATE:
+            self.exploration_rate = max(EXPLORATION_END_RATE,
+                float(FINAL_EXPLORATION_FRAME - self.iteration) 
+                / float(FINAL_EXPLORATION_FRAME - ACTION_REPEAT * REPLAY_START_SIZE))
         return random.random() < self.exploration_rate or self.is_burning_in()
 
     def best_action(self, frame):
@@ -137,7 +137,7 @@ class DeepQLearner(object):
         target_reward = trans['reward']
         if not trans['terminal'] and trans['time'] < len(self.transitions) - 1:
             next_input = self.transitions[trans['time']+1]['input']
-            target_reward += cg.DISCOUNT * np.amax(self.net.compute_q(next_input))
+            target_reward += DISCOUNT * np.amax(self.net.compute_q(next_input))
         return target_reward
 
     def step(self, frame, reward, terminal):
@@ -155,19 +155,19 @@ class DeepQLearner(object):
         self.iteration += 1
 
         # Log if necessary.
-        if self.iteration % cg.LOGGING_FREQUENCY == 0:
+        if self.iteration % LOGGING_FREQUENCY == 0:
             self.log_status()
 
         # Repeat previous action for some number of iterations.
         # If we ARE repeating an action, we pretend that we did not see
         # this frame and just keep doing what we're doing.
-        if self.iteration % cg.ACTION_REPEAT != 0:
+        if self.iteration % ACTION_REPEAT != 0:
             self.repeating_action_rewards += reward
             self.previous_frames.appendleft(frame) # Store this as a previous frame.
             return [self.transitions[-1]['action']]
 
         # Save network if necessary before updating.
-        if self.save and self.iteration % cg.SAVING_FREQUENCY == 0:
+        if self.save and self.iteration % SAVING_FREQUENCY == 0:
             self.net.save(self.chk_path)
 
         # Observe the previous reward.
@@ -176,7 +176,7 @@ class DeepQLearner(object):
         # if not burning in, update network
         if not self.is_burning_in():
             # Update network from the previous action.
-            minibatch = random.sample(self.transitions, cg.BATCH_SIZE)
+            minibatch = random.sample(self.transitions, BATCH_SIZE)
             batch_frames = [trans['input'] for trans in minibatch]
             batch_actions = [trans['action'] for trans in minibatch]
             batch_targets = [self.compute_target_reward(trans) for trans in minibatch]
@@ -209,9 +209,9 @@ class DeepQLearner(object):
             len(self.transitions),
             'not done' if self.is_burning_in() else 'done',
             self.exploration_rate,
-            'still' if self.exploration_rate > cg.EXPLORATION_END_RATE else 'done'
+            'not' if self.is_burning_in() else 'still' if self.exploration_rate > EXPLORATION_END_RATE else 'done'
         ))
 
         # If we're using the network, print a sample of the output.
-        if self.iteration >= cg.REPLAY_START_SIZE:
+        if not self.is_burning_in():
             print('Sample Q output:', self.net.compute_q(self.transitions[-1]['input']))

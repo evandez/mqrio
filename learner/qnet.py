@@ -1,5 +1,5 @@
 """Thin wrapper around TensorFlow logic."""
-import learner.config as cg
+from learner.config import *
 import learner.graph as graph
 import tensorflow as tf
 import os
@@ -24,7 +24,7 @@ class QNet(object):
         actual_reward = tf.gather_nd(self.graph_out, self.action_idxs)
         loss = tf.reduce_mean(tf.square(self.target_reward - actual_reward))
         clipped_loss = tf.clip_by_value(loss, -1, 1)
-        self.optimizer = tf.train.AdamOptimizer(cg.LEARNING_RATE).minimize(clipped_loss)
+        self.optimizer = tf.train.AdamOptimizer(LEARNING_RATE).minimize(clipped_loss)
 
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
