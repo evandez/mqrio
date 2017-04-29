@@ -40,7 +40,6 @@ class PongPlayer(PyGamePlayer):
             from games.pong.pong import bar1_hit_count
 
             score_change = bar1_hit_count - self.last_bar1_hit_count
-
             self.last_bar1_hit_count = bar1_hit_count
 
         return float(score_change), score_change != 0

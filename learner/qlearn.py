@@ -142,6 +142,13 @@ class DeepQLearner(object):
         if self.iteration % cg.LOGGING_FREQUENCY == 0:
             self.log_status()
 
+        # Repeat previous action for some number of iterations.
+        # If we ARE repeating an action, we pretend that we did not see
+        # this frame and just keep doing what we're doing.
+        if self.iteration % cg.ACTION_REPEAT != 0:
+            self.repeating_action_rewards += reward
+            return [self.transitions[-1]['action']]
+
         # Handle burn in period.
         if self.iteration <= cg.REPLAY_START_SIZE:
             self.observe_reward(reward)
@@ -149,13 +156,6 @@ class DeepQLearner(object):
             action = self.random_action()
             self.remember_transition(proc_frame, action, terminal)
             return [action]
-
-        # Repeat previous action for some number of iterations.
-        # If we ARE repeating an action, we pretend that we did not see
-        # this frame and just keep doing what we're doing.
-        if self.iteration % cg.ACTION_REPEAT != 0:
-            self.repeating_action_rewards += reward
-            return [self.transitions[-1]['action']]
         
         # Observe the previous reward.
         self.observe_reward(self.repeating_action_rewards)
