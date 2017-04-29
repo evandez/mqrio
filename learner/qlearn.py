@@ -20,6 +20,7 @@ class DeepQLearner(object):
         self.net = QNet(len(actions))
         self.exploration_rate = cg.EXPLORATION_START_RATE
         self.iteration = -1
+        self.previous_frames = deque(maxlen=cg.STATE_FRAMES-1)
 
         # Handle network save/restore.
         self.chk_path = chk_path
@@ -41,6 +42,20 @@ class DeepQLearner(object):
         #     }
         self.transitions = deque(maxlen=cg.REPLAY_MEMORY_SIZE)
 
+    def normalize_frame(self, frame):
+        """Normalizes the screen array to be 84x84x1, with floating point values in
+        the range [0, 1].
+
+        Args:
+            frame: The pixel values from the screen.
+
+        Returns:
+            An 84x84x1 floating point numpy array.
+        """
+        return np.reshape(
+            [px / 255.0 for px in np.amax(imresize(frame, (84, 84)), axis=2)],
+            (84, 84, 1))
+
     def preprocess(self, frame):
         """Resize image, pool across color channels, and normalize pixels.
 
@@ -50,13 +65,13 @@ class DeepQLearner(object):
         Returns:
             The preprocessed frame.
         """
-        proc_frame = np.reshape(
-            [px / 255.0 for px in np.amax(imresize(frame, (84, 84)), axis=2)],
-            (84, 84, 1))
-        if not len(self.transitions):
-            return np.repeat(proc_frame, 4, axis=2)
+        proc_frame = self.normalize_frame(frame)
+        if not len(self.transitions) or len(self.previous_frames) < cg.STATE_FRAMES - 1:
+            return np.repeat(proc_frame, cg.STATE_FRAMES, axis=2)
         else:
-            return np.append(proc_frame, self.transitions[-1]['input'][:, :, -3:], axis=2)
+            for recent_frame in self.previous_frames:
+                proc_frame = np.append(proc_frame, self.normalize_frame(recent_frame), axis=2)
+            return proc_frame
 
     def remember_transition(self, pre_frame, action, terminal):
         """Returns the transition dictionary for the given data. Defer recording the
@@ -98,7 +113,7 @@ class DeepQLearner(object):
         """Returns the best action to perform.
 
         Args:
-            frame: The current frame.
+            frame: The current (preprocessed) frame.
         """
         return self.actions[np.argmax(self.net.compute_q(frame))]
 
@@ -145,12 +160,14 @@ class DeepQLearner(object):
             proc_frame = self.preprocess(frame)
             action = self.random_action()
             self.remember_transition(proc_frame, action, terminal)
+            self.previous_frames.appendleft(frame) # Store this as a previous frame.
             return [action]
 
         # Repeat previous action for some number of iterations.
         # If we ARE repeating an action, we pretend that we did not see
         # this frame and just keep doing what we're doing.
-        if self.iteration % cg.ACTION_REPEAT == 0:
+        if self.iteration % cg.ACTION_REPEAT != 0:
+            self.previous_frames.appendleft(frame) # Store this as a previous frame.
             return [self.transitions[-1]['action']]
 
         # Observe the previous reward.
@@ -171,6 +188,10 @@ class DeepQLearner(object):
         proc_frame = self.preprocess(frame)
         action = self.random_action() if self.do_explore() else self.best_action(proc_frame)
         self.remember_transition(proc_frame, action, terminal)
+
+        # Store this frame as a previous frame.
+        self.previous_frames.appendleft(frame) # Left frame should be most recent.
+
         return [action]
 
     def log_status(self):

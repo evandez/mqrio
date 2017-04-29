@@ -28,6 +28,9 @@ BATCH_SIZE = 32
 # Necessary for actions to have "real" consequences in the game world.
 ACTION_REPEAT = 4
 
+# The number of frames used in a state object.
+STATE_FRAMES = 4
+
 # Number of iterations for which we take random actions, to build a foundation
 # for our state-action-reward memory.
 REPLAY_START_SIZE = 50000

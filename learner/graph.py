@@ -1,4 +1,5 @@
 """Since we use the same graph for all Q-learners, centralize its construction."""
+import learner.config as cg
 import tensorflow as tf
 
 G_IN = 'frame_input'              # The graph input (84x84x4 frame sets).
@@ -23,9 +24,9 @@ def construct_graph(output_width):
     Returns:
         The graph input and output tensors (in that order).
     """
-    graph_in = tf.placeholder(tf.float32, shape=[None, 84, 84, 4], name=G_IN)
+    graph_in = tf.placeholder(tf.float32, shape=[None, 84, 84, cg.STATE_FRAMES], name=G_IN)
 
-    w_conv1 = _weight_variable([8, 8, 4, 32], G_CONV1_W)
+    w_conv1 = _weight_variable([8, 8, cg.STATE_FRAMES, 32], G_CONV1_W)
     b_conv1 = _bias_variable([32], G_CONV1_B)
     conv_layer1 = tf.nn.relu(_conv2d(graph_in, w_conv1, 4) + b_conv1)
 
@@ -70,7 +71,7 @@ def _weight_variable(shape, name):
     Returns:
         A TensorFlow weight variable of the given size.
     """
-    return tf.Variable(tf.truncated_normal(shape, stddev=0.1), name=name)
+    return tf.Variable(tf.truncated_normal(shape, stddev=0.01), name=name)
 
 def _bias_variable(shape, name):
     """Returns a TensforFlow 2D bias variable.
@@ -82,4 +83,4 @@ def _bias_variable(shape, name):
     Returns:
         A TensorFlow bias variable of the specified shape.
     """
-    return tf.Variable(tf.constant(0.1, shape=shape), name=name)
+    return tf.Variable(tf.constant(0.01, shape=shape), name=name)

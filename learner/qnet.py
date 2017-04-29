@@ -21,7 +21,7 @@ class QNet(object):
         self.target_reward = tf.placeholder(tf.float32)
         self.action_idxs = tf.placeholder(tf.int32)
         actual_reward = tf.gather_nd(self.graph_out, self.action_idxs)
-        loss = tf.nn.l2_loss(self.target_reward - actual_reward)
+        loss = tf.reduce_mean(tf.square(self.target_reward - actual_reward))
         clipped_loss = tf.clip_by_value(loss, -1, 1)
         self.optimizer = tf.train.AdamOptimizer(cg.LEARNING_RATE).minimize(clipped_loss)
 
@@ -43,7 +43,7 @@ class QNet(object):
         Returns:
             The array of network outputs.
         """
-        return self.sess.run(self.graph_out, feed_dict={self.graph_in:[net_in]})
+        return self.sess.run(self.graph_out, feed_dict={self.graph_in:[net_in]})[0]
 
     def save(self, chk_path):
         """Save the current network parameters in the checkpoint path.
