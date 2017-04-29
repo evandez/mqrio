@@ -69,6 +69,9 @@ while done==False:
             
     score1 = font.render(str(bar1_score), True,(255,255,255))
     score2 = font.render(str(bar2_score), True,(255,255,255))
+    hit_count1 = font.render(str(bar1_hit_count), True, (255,255,255))
+    hit_count2 = font.render(str(bar2_hit_count), True, (255,255,255))
+
 
     screen.blit(background,(0,0))
     frame = pygame.draw.rect(screen,(255,255,255),Rect((5,5),(630,470)),2)
@@ -78,6 +81,8 @@ while done==False:
     screen.blit(circle,(circle_x,circle_y))
     screen.blit(score1,(250.,210.))
     screen.blit(score2,(380.,210.))
+    screen.blit(hit_count1, (250,240))
+    screen.blit(hit_count2, (380,240))
 
     bar1_y += bar1_move
         
@@ -91,7 +96,7 @@ while done==False:
     
     # AI of the computer.
     if circle_x >= 305.:
-        if random.random() > 0.999:
+        if random.random() > 0.99:
             bar2_y += random.uniform(-250,250)
             if not bar2_y == circle_y + 7.5:
                 if bar2_y < circle_y + 7.5:
