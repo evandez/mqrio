@@ -9,7 +9,7 @@ from scipy.misc import imresize
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='deep_q_model', save=True, restore=False):
+    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=True):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -20,6 +20,8 @@ class DeepQLearner(object):
         self.net = QNet(len(actions))
         self.exploration_rate = cg.EXPLORATION_START_RATE
         self.iteration = -1
+
+        self.repeating_action_rewards = 0
 
         # Handle network save/restore.
         self.chk_path = chk_path
@@ -83,7 +85,7 @@ class DeepQLearner(object):
         """
         if not len(self.transitions):
             return
-        self.transitions[-1]['reward'] = np.clip(reward, -1, 1)
+        self.transitions[-1]['reward'] = reward
 
     def do_explore(self):
         """Returns true if a random action should be taken, false otherwise.
@@ -118,7 +120,7 @@ class DeepQLearner(object):
         """
         target_reward = trans['reward']
         if not trans['terminal'] and trans['time'] < len(self.transitions) - 1:
-            next_input = self.transitions[trans['time']+1]['input']
+            next_input = self.transitions[trans['time'] + 1]['input']
             target_reward += cg.DISCOUNT * np.amax(self.net.compute_q(next_input))
         return target_reward
 
@@ -151,11 +153,13 @@ class DeepQLearner(object):
         # Repeat previous action for some number of iterations.
         # If we ARE repeating an action, we pretend that we did not see
         # this frame and just keep doing what we're doing.
-        if self.iteration % cg.ACTION_REPEAT == 0:
+        if self.iteration % cg.ACTION_REPEAT != 0:
+            self.repeating_action_rewards += reward
             return [self.transitions[-1]['action']]
-
+        
         # Observe the previous reward.
-        self.observe_reward(reward)
+        self.observe_reward(self.repeating_action_rewards)
+        self.repeating_action_rewards = 0
 
         # Save network if necessary before updating.
         if self.save and self.iteration % cg.SAVING_FREQUENCY == 0:

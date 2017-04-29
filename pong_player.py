@@ -37,12 +37,11 @@ class PongPlayer(PyGamePlayer):
             self.last_bar2_score = bar2_score
 
         elif SCORING_FUNCTION == 'HITS':
-            from games.pong.pong import bar1_hit_count, bar2_hit_count
+            from games.pong.pong import bar1_hit_count
 
-            score_change = (bar1_hit_count - self.last_bar1_hit_count) - (bar2_hit_count - self.last_bar2_hit_count)
+            score_change = bar1_hit_count - self.last_bar1_hit_count
 
             self.last_bar1_hit_count = bar1_hit_count
-            self.last_bar2_hit_count = bar2_hit_count
 
         return float(score_change), score_change != 0
 

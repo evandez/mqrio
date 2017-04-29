@@ -35,13 +35,14 @@ circle = circ_sur.convert()
 circle.set_colorkey((0,0,0))
 
 
+INITIAL_SPEED_X = -50.
 
 # some definitions
 bar1_x, bar2_x = 10. , 620.
 bar1_y, bar2_y = 215. , 215.
 circle_x, circle_y = 307.5, 232.5
 bar1_move, bar2_move = 0. , 0.
-speed_x, speed_y, speed_circ = 250., 1., 250.
+speed_x, speed_y, speed_circ = INITIAL_SPEED_X, random.uniform(-100,100), 250.
 bar1_score, bar2_score = 0,0
 
 bar1_hit_count, bar2_hit_count = 0, 0
@@ -90,7 +91,8 @@ while done==False:
     
     # AI of the computer.
     if circle_x >= 305.:
-        if random.random() > 0.9:
+        if random.random() > 0.999:
+            bar2_y += random.uniform(-250,250)
             if not bar2_y == circle_y + 7.5:
                 if bar2_y < circle_y + 7.5:
                     bar2_y += ai_speed
@@ -100,7 +102,6 @@ while done==False:
             else:
                 bar2_y == circle_y + 7.5
 
-    bar2_y += random.uniform(-250,250)
     
     if bar1_y >= 420.: bar1_y = 420.
     elif bar1_y <= 10. : bar1_y = 10.
@@ -116,6 +117,7 @@ while done==False:
                 bar1_hit_count += 1
             else:
                 bar2_hit_count += 1
+                
     if circle_x >= bar2_x - 15.:
         if circle_y >= bar2_y - 7.5 and circle_y <= bar2_y + 42.5:
             circle_x = 605.
@@ -124,15 +126,22 @@ while done==False:
                 bar1_hit_count += 1
             else:
                 bar2_hit_count += 1
+
+    # bar 2 wins
     if circle_x < 5.:
         bar2_score += 1
         circle_x, circle_y = 320., 232.5
         bar1_y,bar_2_y = 215., 215.
+        speed_x = INITIAL_SPEED_X
+        speed_y = random.uniform(-100,100)
 
+    # bar1 wins
     elif circle_x > 620.:
         bar1_score += 1
         circle_x, circle_y = 307.5, 232.5
         bar1_y, bar2_y = 215., 215.
+        speed_x = INITIAL_SPEED_X
+        speed_y = random.uniform(-100,100)
 
     if circle_y <= 10.:
         speed_y = -speed_y

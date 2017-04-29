@@ -14,11 +14,11 @@ EXPLORATION_END_RATE = 0.1
 # The number of frames that pass before the learner's exploration rate
 # decays to its final value. Determines the rate at which the exploration
 # rate decays.
-FINAL_EXPLORATION_FRAME = 1000000
+FINAL_EXPLORATION_FRAME = 2500000
 
 # When predicting the "value" of a state and action, we discount the value
 # of potential future rewards by multiplying by this constant.
-DISCOUNT = 0.99
+DISCOUNT = 0.9
 
 # When the network's parameters are updated, we sample this many previous
 # state-action-reward triples to use as a training set for the network.
@@ -36,7 +36,7 @@ REPLAY_START_SIZE = 50000
 REPLAY_MEMORY_SIZE = 100000
 
 # How often the Q-learner should log its state.
-LOGGING_FREQUENCY = 1000
+LOGGING_FREQUENCY = 100
 
 # How often the Q-learner should save its parameters.
 SAVING_FREQUENCY = 1000
