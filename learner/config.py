@@ -39,7 +39,7 @@ REPLAY_START_SIZE = 50000
 REPLAY_MEMORY_SIZE = 100000
 
 # How often the Q-learner should log its state.
-LOGGING_FREQUENCY = 1000
+LOGGING_FREQUENCY = 100
 
 # How often the Q-learner should save its parameters.
 SAVING_FREQUENCY = 1000

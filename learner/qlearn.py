@@ -108,7 +108,7 @@ class DeepQLearner(object):
             self.exploration_rate -= (
                 float(cg.EXPLORATION_START_RATE - cg.EXPLORATION_END_RATE)
                 / (cg.FINAL_EXPLORATION_FRAME - cg.REPLAY_START_SIZE))
-        return random.random() < self.exploration_rate or self.iterations < cg.FINAL_EXPLORATION_FRAME
+        return random.random() < self.exploration_rate or self.iteration < cg.FINAL_EXPLORATION_FRAME
 
     def best_action(self, frame):
         """Returns the best action to perform.
