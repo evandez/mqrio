@@ -19,11 +19,14 @@ class DeepQLearner(object):
         self.actions = actions
         self.net = QNet(len(actions))
         self.exploration_rate = EXPLORATION_START_RATE
+        self.exploration_reduction = (EXPLORATION_START_RATE - EXPLORATION_END_RATE) \
+            / float(FINAL_EXPLORATION_TIME - REPLAY_START_SIZE)
         self.iteration = -1
         self.previous_frames = deque(maxlen=STATE_FRAMES-1)
         self.repeating_action_rewards = 0
 
         # Handle network save/restore.
+        # TODO: Need to restore other settings from file too.
         self.chk_path = chk_path
         self.save = save
         if restore:
@@ -54,8 +57,8 @@ class DeepQLearner(object):
             An 84x84x1 floating point numpy array.
         """
         return np.reshape(
-            [px / 255.0 for px in np.amax(imresize(frame, (84, 84)), axis=2)],
-            (84, 84, 1))
+            [px / 255.0 for px in np.amax(imresize(frame, (FRAME_HEIGHT, FRAME_WIDTH)), axis=2)],
+            (FRAME_HEIGHT, FRAME_WIDTH, 1))
 
     def preprocess(self, frame):
         """Resize image, pool across color channels, and normalize pixels.
@@ -101,16 +104,15 @@ class DeepQLearner(object):
         self.transitions[-1]['reward'] = np.clip(reward, -1, 1)
 
     def is_burning_in(self):
+        """Returns true if the network is still burning in (observing transitions)."""
         return len(self.transitions) < REPLAY_START_SIZE
 
     def do_explore(self):
         """Returns true if a random action should be taken, false otherwise.
         Decays the exploration rate if the final exploration frame has not been reached.
         """
-        if not self.is_burning_in() and self.exploration_rate > EXPLORATION_END_RATE:
-            self.exploration_rate = max(EXPLORATION_END_RATE,
-                float(FINAL_EXPLORATION_FRAME - self.iteration) 
-                / float(FINAL_EXPLORATION_FRAME - ACTION_REPEAT * REPLAY_START_SIZE))
+        if not self.is_burning_in() and len(self.transitions) <= FINAL_EXPLORATION_TIME:
+            self.exploration_rate -= self.exploration_reduction
         return random.random() < self.exploration_rate or self.is_burning_in()
 
     def best_action(self, frame):
@@ -166,12 +168,12 @@ class DeepQLearner(object):
             self.previous_frames.appendleft(frame) # Store this as a previous frame.
             return [self.transitions[-1]['action']]
 
+        # Observe the previous reward.
+        self.observe_reward(self.repeating_action_rewards)
+
         # Save network if necessary before updating.
         if self.save and self.iteration % SAVING_FREQUENCY == 0:
             self.net.save(self.chk_path)
-
-        # Observe the previous reward.
-        self.observe_reward(self.repeating_action_rewards)
 
         # if not burning in, update network
         if not self.is_burning_in():
@@ -180,6 +182,8 @@ class DeepQLearner(object):
             batch_frames = [trans['input'] for trans in minibatch]
             batch_actions = [trans['action'] for trans in minibatch]
             batch_targets = [self.compute_target_reward(trans) for trans in minibatch]
+            print('Updating with the following rewards...')
+            print([trans['reward'] for trans in minibatch])
             self.net.update(batch_frames, batch_actions, batch_targets)
 
         # Select the next action.
@@ -209,7 +213,8 @@ class DeepQLearner(object):
             len(self.transitions),
             'not done' if self.is_burning_in() else 'done',
             self.exploration_rate,
-            'not' if self.is_burning_in() else 'still' if self.exploration_rate > EXPLORATION_END_RATE else 'done'
+            'not' if self.is_burning_in() else (
+                'still' if self.exploration_rate > EXPLORATION_END_RATE else 'done')
         ))
 
         # If we're using the network, print a sample of the output.

@@ -24,7 +24,10 @@ def construct_graph(output_width):
     Returns:
         The graph input and output tensors (in that order).
     """
-    graph_in = tf.placeholder(tf.float32, shape=[None, 84, 84, STATE_FRAMES], name=G_IN)
+    graph_in = tf.placeholder(
+        tf.float32,
+        shape=[None, FRAME_HEIGHT, FRAME_WIDTH, STATE_FRAMES],
+        name=G_IN)
 
     w_conv1 = _weight_variable([8, 8, STATE_FRAMES, 32], G_CONV1_W)
     b_conv1 = _bias_variable([32], G_CONV1_B)
@@ -45,7 +48,7 @@ def construct_graph(output_width):
 
     w_fc2 = _weight_variable([512, output_width], G_FC2_W)
     b_fc2 = _bias_variable([output_width], G_FC2_B)
-    graph_out = tf.nn.relu(tf.matmul(fc_layer1, w_fc2) + b_fc2, name=G_OUT)
+    graph_out = tf.add(tf.matmul(fc_layer1, w_fc2), b_fc2, name=G_OUT)
     return graph_in, graph_out
 
 def _conv2d(data, weights, stride):

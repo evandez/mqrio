@@ -11,10 +11,10 @@ EXPLORATION_START_RATE = 1
 # The exploration rate should decay linearly to this value.
 EXPLORATION_END_RATE = 0.1
 
-# The number of frames that pass before the learner's exploration rate
+# The number of time steps that pass before the learner's exploration rate
 # decays to its final value. Determines the rate at which the exploration
 # rate decays.
-FINAL_EXPLORATION_FRAME = 1e6
+FINAL_EXPLORATION_TIME = 1000000
 
 # When predicting the "value" of a state and action, we discount the value
 # of potential future rewards by multiplying by this constant.
@@ -28,20 +28,21 @@ BATCH_SIZE = 32
 # Necessary for actions to have "real" consequences in the game world.
 ACTION_REPEAT = 4
 
+# Shape of the frames to use in the network.
+FRAME_HEIGHT, FRAME_WIDTH = (84, 84)
+
 # The number of frames used in a state object.
 STATE_FRAMES = 4
 
 # Number of iterations for which we take random actions, to build a foundation
 # for our state-action-reward memory.
-REPLAY_START_SIZE = 5e4
+REPLAY_START_SIZE = 50000
 
 # Maximum size of the replay memory.
-REPLAY_MEMORY_SIZE = int(1e6)
+REPLAY_MEMORY_SIZE = 1000000
 
 # How often the Q-learner should log its state.
-LOGGING_FREQUENCY = 1e2
+LOGGING_FREQUENCY = 100
 
 # How often the Q-learner should save its parameters.
-SAVING_FREQUENCY = 1e3
-
-SCORING_FUNCTION = 'HITS'
+SAVING_FREQUENCY = 1000
