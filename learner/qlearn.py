@@ -58,7 +58,7 @@ class DeepQLearner(object):
             An 84x84x1 floating point numpy array.
         """
         return np.reshape(
-            imresize(np.mean(frame,axis=2), (FRAME_HEIGHT, FRAME_WIDTH)),
+            np.mean(imresize(frame, (FRAME_HEIGHT, FRAME_WIDTH)), axis=2),
             (FRAME_HEIGHT, FRAME_WIDTH, 1))
 
     def preprocess(self, frame):
