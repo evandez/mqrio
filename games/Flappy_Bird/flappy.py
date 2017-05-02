@@ -6,7 +6,7 @@ import pygame
 from pygame.locals import *
 
 
-FPS = 30
+FPS = 60
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 # amount by which base can maximum shift to left
@@ -15,7 +15,7 @@ BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
 
-collision = True
+collision = False
 
 # list of all possible players (tuple of 3 positions of flap)
 PLAYERS_LIST = (
@@ -341,14 +341,6 @@ def showGameOverScreen(crashInfo):
         SOUNDS['die'].play()
 
     while True:
-        for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-                if playery + playerHeight >= BASEY - 1:
-                    return
-
         # player y shift
         if playery + playerHeight < BASEY - 1:
             playery += min(playerVelY, BASEY - playery - playerHeight)
@@ -370,6 +362,16 @@ def showGameOverScreen(crashInfo):
 
         FPSCLOCK.tick(FPS)
         pygame.display.update()
+        
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
+                # if playery + playerHeight >= BASEY - 1:
+                    return
+
+        
 
 
 
