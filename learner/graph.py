@@ -41,6 +41,8 @@ def construct_graph(output_width):
     b_conv3 = _bias_variable([64], G_CONV3_B)
     conv_layer3 = tf.nn.relu(_conv2d(conv_layer2, w_conv3, 1) + b_conv3)
 
+    # TODO: Reshape this so we don't have to hardcode the the number of inputs
+    # and can freely change the frame height/width.
     conv_layer3_flat = tf.reshape(conv_layer3, [-1, 7744])
     w_fc1 = _weight_variable([7744, 512], G_FC1_W)
     b_fc1 = _bias_variable([512], G_FC1_B)
