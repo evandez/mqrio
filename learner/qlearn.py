@@ -182,8 +182,6 @@ class DeepQLearner(object):
             batch_frames = [trans['input'] for trans in minibatch]
             batch_actions = [trans['action'] for trans in minibatch]
             batch_targets = [self.compute_target_reward(trans) for trans in minibatch]
-            print('Updating with the following rewards...')
-            print([trans['reward'] for trans in minibatch])
             self.net.update(batch_frames, batch_actions, batch_targets)
 
         # Select the next action.
