@@ -24,6 +24,7 @@ class DeepQLearner(object):
         self.iteration = -1
         self.previous_frames = deque(maxlen=STATE_FRAMES-1)
         self.repeating_action_rewards = 0
+        self.loss = 0
 
         # Handle network save/restore.
         # TODO: Need to restore other settings from file too.
@@ -69,12 +70,12 @@ class DeepQLearner(object):
         Returns:
             The preprocessed frame.
         """
-        proc_frame = self.normalize_frame(frame)
+        proc_frame = frame
         if not len(self.transitions) or len(self.previous_frames) < STATE_FRAMES - 1:
-            return np.repeat(proc_frame, STATE_FRAMES, axis=2)
+            return np.repeat(frame, STATE_FRAMES, axis=2)
         else:
             for recent_frame in self.previous_frames:
-                proc_frame = np.append(proc_frame, self.normalize_frame(recent_frame), axis=2)
+                proc_frame = np.append(proc_frame, recent_frame, axis=2)
             return proc_frame
 
     def remember_transition(self, pre_frame, action, terminal):
@@ -101,7 +102,7 @@ class DeepQLearner(object):
         """
         if not len(self.transitions):
             return
-        self.transitions[-1]['reward'] = np.clip(reward, -1, 1)
+        self.transitions[-1]['reward'] = reward
 
     def is_burning_in(self):
         """Returns true if the network is still burning in (observing transitions)."""
@@ -157,15 +158,19 @@ class DeepQLearner(object):
         self.iteration += 1
 
         # Log if necessary.
-        if self.iteration % LOGGING_FREQUENCY == 0:
+        if self.iteration % LOGGING_FREQUENCY < LOG_IN_A_ROW * STATE_FRAMES and self.iteration % STATE_FRAMES == 0:
             self.log_status()
+
+        frame = self.normalize_frame(frame)
+
+        # Store this frame as a previous frame.
+        self.previous_frames.appendleft(frame) # Left frame should be most recent.
 
         # Repeat previous action for some number of iterations.
         # If we ARE repeating an action, we pretend that we did not see
         # this frame and just keep doing what we're doing.
         if self.iteration % ACTION_REPEAT != 0:
             self.repeating_action_rewards += reward
-            self.previous_frames.appendleft(frame) # Store this as a previous frame.
             return [self.transitions[-1]['action']]
 
         # Observe the previous reward.
@@ -182,7 +187,7 @@ class DeepQLearner(object):
             batch_frames = [trans['input'] for trans in minibatch]
             batch_actions = [trans['action'] for trans in minibatch]
             batch_targets = [self.compute_target_reward(trans) for trans in minibatch]
-            self.net.update(batch_frames, batch_actions, batch_targets)
+            self.loss = self.net.update(batch_frames, batch_actions, batch_targets)
 
         # Select the next action.
         proc_frame = self.preprocess(frame)
@@ -191,8 +196,6 @@ class DeepQLearner(object):
         # Remember the action and the input frames, reward to be observed later.
         self.remember_transition(proc_frame, action, terminal)
 
-        # Store this frame as a previous frame.
-        self.previous_frames.appendleft(frame) # Left frame should be most recent.
 
         # Reset rewards counter for each group of 4 frames.
         self.repeating_action_rewards = 0
@@ -217,4 +220,5 @@ class DeepQLearner(object):
 
         # If we're using the network, print a sample of the output.
         if not self.is_burning_in():
-            print('Sample Q output:', self.net.compute_q(self.transitions[-1]['input']))
+            print('        Sample Q output:', self.net.compute_q(self.transitions[-1]['input']))
+            print('        Clipped loss:', self.loss)

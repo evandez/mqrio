@@ -13,6 +13,7 @@ import pygame
 from pygame.locals import *
 from sys import exit
 import random
+import math
 import pygame.surfarray as surfarray
 
 pygame.init()
@@ -34,18 +35,23 @@ circle = circ_sur.convert()
 circle.set_colorkey((0,0,0))
 
 
+INITIAL_SPEED_X = -250.
 
 # some definitions
 bar1_x, bar2_x = 10. , 620.
 bar1_y, bar2_y = 215. , 215.
 circle_x, circle_y = 307.5, 232.5
 bar1_move, bar2_move = 0. , 0.
-speed_x, speed_y, speed_circ = 250., 250., 250.
+speed_x, speed_y, speed_circ = INITIAL_SPEED_X, random.uniform(-500,500), 250.
 bar1_score, bar2_score = 0,0
+
+bar1_hit_count, bar2_hit_count = 0, 0
 
 #clock and font objects
 clock = pygame.time.Clock()
-font = pygame.font.SysFont("calibri",40)
+font = pygame.font.SysFont("calibri",10)
+
+spaces = "                                                                "
 
 done = False
 while done==False:       
@@ -53,18 +59,21 @@ while done==False:
         if event.type == pygame.QUIT: # If user clicked close
             done = True # Flag that we are done so we exit this loop
         if event.type == KEYDOWN:
-            if event.key == K_UP:
+            if event.key == K_UP or event.key == K_w:
                 bar1_move = -ai_speed
-            elif event.key == K_DOWN:
+            elif event.key == K_DOWN or event.key == K_s:
                 bar1_move = ai_speed
         elif event.type == KEYUP:
-            if event.key == K_UP:
+            if event.key == K_UP or event.key == K_w:
                 bar1_move = 0.
-            elif event.key == K_DOWN:
+            elif event.key == K_DOWN or event.key == K_s:
                 bar1_move = 0.
             
     score1 = font.render(str(bar1_score), True,(255,255,255))
     score2 = font.render(str(bar2_score), True,(255,255,255))
+    hit_count1 = font.render(str(bar1_hit_count), True, (255,255,255))
+    hit_count2 = font.render(str(bar2_hit_count), True, (255,255,255))
+
 
     screen.blit(background,(0,0))
     frame = pygame.draw.rect(screen,(255,255,255),Rect((5,5),(630,470)),2)
@@ -74,6 +83,8 @@ while done==False:
     screen.blit(circle,(circle_x,circle_y))
     screen.blit(score1,(250.,210.))
     screen.blit(score2,(380.,210.))
+    screen.blit(hit_count1, (250,240))
+    screen.blit(hit_count2, (380,240))
 
     bar1_y += bar1_move
         
@@ -85,40 +96,70 @@ while done==False:
     circle_y += speed_y * time_sec
     ai_speed = speed_circ * time_sec
     
-    #AI of the computer.
+    # AI of the computer.
     if circle_x >= 305.:
+        bar2_y += random.uniform(-250,250)
         if not bar2_y == circle_y + 7.5:
             if bar2_y < circle_y + 7.5:
                 bar2_y += ai_speed
+
             if  bar2_y > circle_y - 42.5:
                 bar2_y -= ai_speed
         else:
             bar2_y == circle_y + 7.5
+
     
     if bar1_y >= 420.: bar1_y = 420.
     elif bar1_y <= 10. : bar1_y = 10.
     if bar2_y >= 420.: bar2_y = 420.
     elif bar2_y <= 10.: bar2_y = 10.
-    #since i don't know anything about collision, ball hitting bars goes like this.
+
+    # since i don't know anything about collision, ball hitting bars goes like this.
     if circle_x <= bar1_x + 10.:
         if circle_y >= bar1_y - 7.5 and circle_y <= bar1_y + 42.5:
             circle_x = 20.
             speed_x = -speed_x
+            if speed_x > 0:
+                print(spaces + "|||bar1 hit|||")
+                bar1_hit_count += 1
+            else:
+                print(spaces + "|||bar2 hit|||")
+                bar2_hit_count += 1
+                
     if circle_x >= bar2_x - 15.:
         if circle_y >= bar2_y - 7.5 and circle_y <= bar2_y + 42.5:
             circle_x = 605.
             speed_x = -speed_x
+            if speed_x > 0:
+                print(spaces + "|||bar1 hit|||")
+                bar1_hit_count += 1
+            else:
+                print(spaces + "|||bar2 hit|||")
+                bar2_hit_count += 1
+
+    # bar 2 wins
     if circle_x < 5.:
         bar2_score += 1
         circle_x, circle_y = 320., 232.5
         bar1_y,bar_2_y = 215., 215.
+        speed_x = INITIAL_SPEED_X
+        speed_y = random.uniform(-500,500)
+        print(spaces + "---bar 2 wins---")
+
+
+    # bar1 wins
     elif circle_x > 620.:
         bar1_score += 1
         circle_x, circle_y = 307.5, 232.5
         bar1_y, bar2_y = 215., 215.
+        speed_x = INITIAL_SPEED_X
+        speed_y = random.uniform(-500,500)
+        print(spaces + "---bar 1 wins---")
+
     if circle_y <= 10.:
         speed_y = -speed_y
         circle_y = 10.
+
     elif circle_y >= 457.5:
         speed_y = -speed_y
         circle_y = 457.5

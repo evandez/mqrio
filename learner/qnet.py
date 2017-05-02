@@ -23,8 +23,8 @@ class QNet(object):
         self.action_idxs = tf.placeholder(tf.int32)
         actual_reward = tf.gather_nd(self.graph_out, self.action_idxs)
         loss = tf.reduce_mean(tf.square(self.target_reward - actual_reward))
-        clipped_loss = tf.clip_by_value(loss, -1, 1)
-        self.optimizer = tf.train.AdamOptimizer(LEARNING_RATE).minimize(clipped_loss)
+        self.clipped_loss = tf.clip_by_value(loss, -1, 1)
+        self.optimizer = tf.train.AdamOptimizer(LEARNING_RATE).minimize(self.clipped_loss)
 
         self.sess = tf.Session()
         self.sess.run(tf.global_variables_initializer())
@@ -76,9 +76,9 @@ class QNet(object):
         """
         # Note: Action indicies must actually be tuples since graph_out is a 2D tensor.
         # To prevent tight coupling, modify the batch_actions list here.
-        self.sess.run(
-            self.optimizer,
+        return self.sess.run(
+            [self.optimizer, self.clipped_loss],
             feed_dict={
                 self.graph_in:batch_frames,
                 self.action_idxs:[tup for tup in enumerate(batch_actions)],
-                self.target_reward:batch_targets})
+                self.target_reward:batch_targets})[1]

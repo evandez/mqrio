@@ -46,3 +46,6 @@ LOGGING_FREQUENCY = 100
 
 # How often the Q-learner should save its parameters.
 SAVING_FREQUENCY = 1000
+
+# How many times should the state be logged in a row.
+LOG_IN_A_ROW = 10
