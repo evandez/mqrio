@@ -2,11 +2,10 @@
 from collections import deque
 import random
 import os
-import cv2
+from cv2 import COLOR_BGR2GRAY, cvtColor, resize
 from learner.config import *
 from learner.qnet import QNet
 import numpy as np
-from scipy.misc import imresize
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
@@ -58,7 +57,7 @@ class DeepQLearner(object):
             An 84x84x1 floating point numpy array.
         """
         return np.reshape(
-            cv2.cvtColor(imresize(frame, (FRAME_HEIGHT, FRAME_WIDTH)), cv2.COLOR_BGR2GRAY),
+            cvtColor(resize(frame, (FRAME_HEIGHT, FRAME_WIDTH)), COLOR_BGR2GRAY),
             (FRAME_HEIGHT, FRAME_WIDTH, 1))
 
     def preprocess(self, frame):
