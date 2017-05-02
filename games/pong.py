@@ -51,8 +51,6 @@ bar1_hit_count, bar2_hit_count = 0, 0
 clock = pygame.time.Clock()
 font = pygame.font.SysFont("calibri",10)
 
-spaces = "                                                                "
-
 done = False
 while done==False:       
     for event in pygame.event.get(): # User did something
@@ -120,10 +118,8 @@ while done==False:
             circle_x = 20.
             speed_x = -speed_x
             if speed_x > 0:
-                print(spaces + "|||bar1 hit|||")
                 bar1_hit_count += 1
             else:
-                print(spaces + "|||bar2 hit|||")
                 bar2_hit_count += 1
                 
     if circle_x >= bar2_x - 15.:
@@ -131,10 +127,8 @@ while done==False:
             circle_x = 605.
             speed_x = -speed_x
             if speed_x > 0:
-                print(spaces + "|||bar1 hit|||")
                 bar1_hit_count += 1
             else:
-                print(spaces + "|||bar2 hit|||")
                 bar2_hit_count += 1
 
     # bar 2 wins
@@ -144,7 +138,6 @@ while done==False:
         bar1_y,bar_2_y = 215., 215.
         speed_x = INITIAL_SPEED_X
         speed_y = random.uniform(-500,500)
-        print(spaces + "---bar 2 wins---")
 
 
     # bar1 wins
@@ -154,7 +147,6 @@ while done==False:
         bar1_y, bar2_y = 215., 215.
         speed_x = INITIAL_SPEED_X
         speed_y = random.uniform(-500,500)
-        print(spaces + "---bar 1 wins---")
 
     if circle_y <= 10.:
         speed_y = -speed_y
