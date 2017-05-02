@@ -2,6 +2,7 @@
 from collections import deque
 import random
 import os
+import cv2
 from learner.config import *
 from learner.qnet import QNet
 import numpy as np
@@ -57,7 +58,7 @@ class DeepQLearner(object):
             An 84x84x1 floating point numpy array.
         """
         return np.reshape(
-            [px / 255.0 for px in np.amax(imresize(frame, (FRAME_HEIGHT, FRAME_WIDTH)), axis=2)],
+            cv2.cvtColor(imresize(frame, (FRAME_HEIGHT, FRAME_WIDTH)), cv2.COLOR_BGR2GRAY),
             (FRAME_HEIGHT, FRAME_WIDTH, 1))
 
     def preprocess(self, frame):

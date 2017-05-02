@@ -14,7 +14,7 @@ EXPLORATION_END_RATE = 0.1
 # The number of time steps that pass before the learner's exploration rate
 # decays to its final value. Determines the rate at which the exploration
 # rate decays.
-FINAL_EXPLORATION_TIME = 1000000
+FINAL_EXPLORATION_TIME = 500000
 
 # When predicting the "value" of a state and action, we discount the value
 # of potential future rewards by multiplying by this constant.
@@ -39,7 +39,7 @@ STATE_FRAMES = 4
 REPLAY_START_SIZE = 50000
 
 # Maximum size of the replay memory.
-REPLAY_MEMORY_SIZE = 1000000
+REPLAY_MEMORY_SIZE = 100000
 
 # How often the Q-learner should log its state.
 LOGGING_FREQUENCY = 100
