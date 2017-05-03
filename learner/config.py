@@ -9,7 +9,7 @@ EXPLORATION_START_RATE = 1
 
 # Final probability of the learner taking a random action.
 # The exploration rate should decay linearly to this value.
-EXPLORATION_END_RATE = 0.1
+EXPLORATION_END_RATE = 0.05
 
 # The number of time steps that pass before the learner's exploration rate
 # decays to its final value. Determines the rate at which the exploration
