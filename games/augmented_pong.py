@@ -13,7 +13,6 @@ import pygame
 from pygame.locals import *
 from sys import exit
 import random
-import math
 import pygame.surfarray as surfarray
 
 pygame.init()
@@ -36,13 +35,15 @@ circle.set_colorkey((0,0,0))
 
 
 INITIAL_SPEED_X = -250.
+def SPEED_Y():
+    return random.uniform(-2*INITIAL_SPEED_X, 2*INITIAL_SPEED_X)
 
 # some definitions
 bar1_x, bar2_x = 10. , 620.
 bar1_y, bar2_y = 215. , 215.
 circle_x, circle_y = 307.5, 232.5
 bar1_move, bar2_move = 0. , 0.
-speed_x, speed_y, speed_circ = INITIAL_SPEED_X, random.uniform(-500,500), 250.
+speed_x, speed_y, speed_circ = INITIAL_SPEED_X, SPEED_Y(), 250.
 bar1_score, bar2_score = 0,0
 
 bar1_hit_count, bar2_hit_count = 0, 0
@@ -96,16 +97,14 @@ while done==False:
     
     # AI of the computer.
     if circle_x >= 305.:
-        if random.random() > 0.99:
-            bar2_y += random.uniform(-250,250)
-            if not bar2_y == circle_y + 7.5:
-                if bar2_y < circle_y + 7.5:
-                    bar2_y += ai_speed
+        if not bar2_y == circle_y + 7.5:
+            if bar2_y < circle_y + 7.5:
+                bar2_y += ai_speed
 
-                if  bar2_y > circle_y - 42.5:
-                    bar2_y -= ai_speed
-            else:
-                bar2_y == circle_y + 7.5
+            if  bar2_y > circle_y - 42.5:
+                bar2_y -= ai_speed
+        else:
+            bar2_y == circle_y + 7.5
 
     
     if bar1_y >= 420.: bar1_y = 420.
@@ -138,15 +137,14 @@ while done==False:
         circle_x, circle_y = 320., 232.5
         bar1_y,bar_2_y = 215., 215.
         speed_x = INITIAL_SPEED_X
-        speed_y = random.uniform(-500,500)
-
+        speed_y = SPEED_Y()
     # bar1 wins
     elif circle_x > 620.:
         bar1_score += 1
         circle_x, circle_y = 307.5, 232.5
         bar1_y, bar2_y = 215., 215.
         speed_x = INITIAL_SPEED_X
-        speed_y = random.uniform(-500,500)
+        speed_y = SPEED_Y()
 
     if circle_y <= 10.:
         speed_y = -speed_y
