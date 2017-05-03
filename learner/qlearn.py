@@ -9,7 +9,7 @@ from scipy.misc import imresize
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=True):
+    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=False):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -88,7 +88,7 @@ class DeepQLearner(object):
             terminal: True if the action at current time led to episode termination.
         """
         self.transitions.append({
-            'time': len(self.transitions),
+            'time': self.iteration,
             'input': pre_frame,
             'action': self.actions.index(action),
             'terminal': terminal

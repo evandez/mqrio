@@ -22,7 +22,7 @@ DISCOUNT = 0.99
 
 # When the network's parameters are updated, we sample this many previous
 # state-action-reward triples to use as a training set for the network.
-BATCH_SIZE = 32
+BATCH_SIZE = 128
 
 # The number of iterations for which a chosen action is repeated.
 # Necessary for actions to have "real" consequences in the game world.
@@ -36,10 +36,10 @@ STATE_FRAMES = 4
 
 # Number of iterations for which we take random actions, to build a foundation
 # for our state-action-reward memory.
-REPLAY_START_SIZE = 50000
+REPLAY_START_SIZE = 500
 
 # Maximum size of the replay memory.
-REPLAY_MEMORY_SIZE = 100000
+REPLAY_MEMORY_SIZE = 1000
 
 # How often the Q-learner should log its state.
 LOGGING_FREQUENCY = 100
