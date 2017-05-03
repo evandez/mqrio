@@ -9,9 +9,8 @@ from scipy.misc import imresize
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=False):
+    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=True):
         """Intializes the TensorFlow graph.
-
         Args:
             actions: List of viable actions learner can make. (Must be PyGame constants.)
         """
@@ -50,10 +49,8 @@ class DeepQLearner(object):
     def normalize_frame(self, frame):
         """Normalizes the screen array to be 84x84x1, with floating point values in
         the range [0, 1].
-
         Args:
             frame: The pixel values from the screen.
-
         Returns:
             An 84x84x1 floating point numpy array.
         """
@@ -63,10 +60,8 @@ class DeepQLearner(object):
 
     def preprocess(self, frame):
         """Resize image, pool across color channels, and normalize pixels.
-
         Args:
             frame: The frame to process.
-
         Returns:
             The preprocessed frame.
         """
@@ -80,29 +75,29 @@ class DeepQLearner(object):
 
     def remember_transition(self, pre_frame, action, terminal):
         """Returns the transition dictionary for the given data. Defer recording the
-        reward until it is observed.
-
+        reward and resulting state until they are observed.
         Args:
             pre_frame: The frame at the current time.
             action: The index of the action(s) taken at current time.
             terminal: True if the action at current time led to episode termination.
         """
         self.transitions.append({
-            'time': self.iteration,
-            'input': pre_frame,
+            'state_in': pre_frame,
             'action': self.actions.index(action),
             'terminal': terminal
         })
 
-    def observe_reward(self, reward):
-        """Records the reward from the previous action. Clips as necessary.
-
+    def observe_result(self, resulting_state, reward):
+        """Records the resulting state and reward from the previous action.
+        Clips reward as necessary.
         Args:
+            resulting_state: The (preprocessed) state resulting from the previous action.
             reward: The reward from the previous transition.
         """
         if not len(self.transitions):
             return
-        self.transitions[-1]['reward'] = reward
+        self.transitions[-1]['reward'] = np.clip(reward, -1, 1)
+        self.transitions[-1]['state_out'] = resulting_state
 
     def is_burning_in(self):
         """Returns true if the network is still burning in (observing transitions)."""
@@ -112,13 +107,12 @@ class DeepQLearner(object):
         """Returns true if a random action should be taken, false otherwise.
         Decays the exploration rate if the final exploration frame has not been reached.
         """
-        if not self.is_burning_in() and len(self.transitions) < REPLAY_MEMORY_SIZE:
+        if not self.is_burning_in() and self.exploration_rate > EXPLORATION_END_RATE:
             self.exploration_rate -= self.exploration_reduction
         return random.random() < self.exploration_rate or self.is_burning_in()
 
     def best_action(self, frame):
         """Returns the best action to perform.
-
         Args:
             frame: The current (preprocessed) frame.
         """
@@ -130,28 +124,23 @@ class DeepQLearner(object):
 
     def compute_target_reward(self, trans):
         """Computes the target reward for the given transition.
-
         Args:
             trans: The transition for which to compute the target reward.
-
         Returns:
             The target reward.
         """
         target_reward = trans['reward']
-        if not trans['terminal'] and trans['time'] < len(self.transitions) - 1:
-            next_input = self.transitions[trans['time']+1]['input']
-            target_reward += DISCOUNT * np.amax(self.net.compute_q(next_input))
+        if not trans['terminal']:
+            target_reward += DISCOUNT * np.amax(self.net.compute_q(trans['state_out']))
         return target_reward
 
     def step(self, frame, reward, terminal):
         """Steps the training algorithm given the current frame and previous reward.
         Assumes that the reward is a consequence of the previous action.
-
         Args:
             frame: Current game frame.
             reward: Reward value from previous action.
             terminal: True if the previous action was termnial.
-
         Returns:
             The next action to perform.
         """
@@ -174,7 +163,8 @@ class DeepQLearner(object):
             return [self.transitions[-1]['action']]
 
         # Observe the previous reward.
-        self.observe_reward(self.repeating_action_rewards)
+        proc_frame = self.preprocess(frame)
+        self.observe_result(proc_frame, self.repeating_action_rewards)
 
         # Save network if necessary before updating.
         if self.save and self.iteration % SAVING_FREQUENCY == 0:
@@ -184,13 +174,12 @@ class DeepQLearner(object):
         if not self.is_burning_in():
             # Update network from the previous action.
             minibatch = random.sample(self.transitions, BATCH_SIZE)
-            batch_frames = [trans['input'] for trans in minibatch]
+            batch_frames = [trans['state_in'] for trans in minibatch]
             batch_actions = [trans['action'] for trans in minibatch]
             batch_targets = [self.compute_target_reward(trans) for trans in minibatch]
             self.loss = self.net.update(batch_frames, batch_actions, batch_targets)
 
         # Select the next action.
-        proc_frame = self.preprocess(frame)
         action = self.random_action() if self.do_explore() else self.best_action(proc_frame)
 
         # Remember the action and the input frames, reward to be observed later.
