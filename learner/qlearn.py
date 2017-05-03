@@ -88,7 +88,7 @@ class DeepQLearner(object):
             terminal: True if the action at current time led to episode termination.
         """
         self.transitions.append({
-            'time': len(self.transitions),
+            'time': self.iteration,
             'input': pre_frame,
             'action': self.actions.index(action),
             'terminal': terminal
