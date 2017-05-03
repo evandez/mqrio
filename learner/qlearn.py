@@ -9,7 +9,7 @@ from scipy.misc import imresize
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=False):
+    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=True):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -20,7 +20,7 @@ class DeepQLearner(object):
         self.net = QNet(len(actions))
         self.exploration_rate = EXPLORATION_START_RATE
         self.exploration_reduction = (EXPLORATION_START_RATE - EXPLORATION_END_RATE) \
-            / float(FINAL_EXPLORATION_TIME - REPLAY_START_SIZE)
+            / float(REPLAY_MEMORY_SIZE - REPLAY_START_SIZE)
         self.iteration = -1
         self.previous_frames = deque(maxlen=STATE_FRAMES-1)
         self.repeating_action_rewards = 0
@@ -112,7 +112,7 @@ class DeepQLearner(object):
         """Returns true if a random action should be taken, false otherwise.
         Decays the exploration rate if the final exploration frame has not been reached.
         """
-        if not self.is_burning_in() and len(self.transitions) <= FINAL_EXPLORATION_TIME:
+        if not self.is_burning_in() and len(self.transitions) < REPLAY_MEMORY_SIZE:
             self.exploration_rate -= self.exploration_reduction
         return random.random() < self.exploration_rate or self.is_burning_in()
 
