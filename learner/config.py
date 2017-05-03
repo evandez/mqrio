@@ -9,7 +9,7 @@ EXPLORATION_START_RATE = 1
 
 # Final probability of the learner taking a random action.
 # The exploration rate should decay linearly to this value.
-EXPLORATION_END_RATE = 0.1
+EXPLORATION_END_RATE = 0.05
 
 # The number of time steps that pass before the learner's exploration rate
 # decays to its final value. Determines the rate at which the exploration
@@ -36,10 +36,10 @@ STATE_FRAMES = 4
 
 # Number of iterations for which we take random actions, to build a foundation
 # for our state-action-reward memory.
-REPLAY_START_SIZE = 50000
+REPLAY_START_SIZE = 500
 
 # Maximum size of the replay memory.
-REPLAY_MEMORY_SIZE = 100000
+REPLAY_MEMORY_SIZE = 1000
 
 # How often the Q-learner should log its state.
 LOGGING_FREQUENCY = 100

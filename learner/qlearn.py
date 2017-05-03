@@ -209,5 +209,5 @@ class DeepQLearner(object):
 
         # If we're using the network, print a sample of the output.
         if not self.is_burning_in():
-            print('        Sample Q output:', self.net.compute_q(self.transitions[-1]['input']))
+            print('        Sample Q output:', self.net.compute_q(self.transitions[-1]['state_in']))
             print('        Clipped loss:', self.loss)
