@@ -9,7 +9,7 @@ from scipy.misc import imresize
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=True):
+    def __init__(self, actions, chk_path='deep_q_model/', save=False, restore=False):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -20,14 +20,12 @@ class DeepQLearner(object):
         self.net = QNet(len(actions))
         self.exploration_rate = EXPLORATION_START_RATE
         self.exploration_reduction = (EXPLORATION_START_RATE - EXPLORATION_END_RATE) \
-            / float(REPLAY_MEMORY_SIZE - REPLAY_START_SIZE)
+            / float(REPLAY_MEMORY_SIZE - REPLAY_START_SIZE + 1)
         self.iteration = -1
-        self.previous_frames = deque(maxlen=STATE_FRAMES-1)
         self.repeating_action_rewards = 0
         self.loss = 0
 
         # Handle network save/restore.
-        # TODO: Need to restore other settings from file too.
         self.chk_path = chk_path
         self.save = save
         if restore:
@@ -70,13 +68,13 @@ class DeepQLearner(object):
         Returns:
             The preprocessed frame.
         """
-        proc_frame = frame
-        if not len(self.transitions) or len(self.previous_frames) < STATE_FRAMES - 1:
-            return np.repeat(frame, STATE_FRAMES, axis=2)
+        proc_frame = self.normalize_frame(frame)
+        if not len(self.transitions):
+            return np.repeat(proc_frame, STATE_FRAMES, axis=2)
         else:
-            for recent_frame in self.previous_frames:
-                proc_frame = np.append(proc_frame, recent_frame, axis=2)
-            return proc_frame
+            return np.concatenate(
+                (proc_frame, self.transitions[-1]['state_in'][:, :, -(STATE_FRAMES-1):]),
+                axis=2)
 
     def remember_transition(self, pre_frame, action, terminal):
         """Returns the transition dictionary for the given data. Defer recording the
@@ -162,11 +160,6 @@ class DeepQLearner(object):
         if self.iteration % LOGGING_FREQUENCY < LOG_IN_A_ROW * STATE_FRAMES and self.iteration % STATE_FRAMES == 0:
             self.log_status()
 
-        frame = self.normalize_frame(frame)
-
-        # Store this frame as a previous frame.
-        self.previous_frames.appendleft(frame) # Left frame should be most recent.
-
         # Repeat previous action for some number of iterations.
         # If we ARE repeating an action, we pretend that we did not see
         # this frame and just keep doing what we're doing.
@@ -182,7 +175,7 @@ class DeepQLearner(object):
         if self.save and self.iteration % SAVING_FREQUENCY == 0:
             self.net.save(self.chk_path)
 
-        # if not burning in, update network
+        # If not burning in, update the network.
         if not self.is_burning_in():
             # Update network from the previous action.
             minibatch = random.sample(self.transitions, BATCH_SIZE)
@@ -196,7 +189,6 @@ class DeepQLearner(object):
 
         # Remember the action and the input frames, reward to be observed later.
         self.remember_transition(proc_frame, action, terminal)
-
 
         # Reset rewards counter for each group of 4 frames.
         self.repeating_action_rewards = 0
