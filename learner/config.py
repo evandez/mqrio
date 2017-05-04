@@ -22,7 +22,7 @@ DISCOUNT = 0.99
 
 # When the network's parameters are updated, we sample this many previous
 # state-action-reward triples to use as a training set for the network.
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 
 # The number of iterations for which a chosen action is repeated.
 # Necessary for actions to have "real" consequences in the game world.

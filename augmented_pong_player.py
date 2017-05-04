@@ -8,7 +8,7 @@ from learner.qlearn import DeepQLearner
 ACTIONS = [pgc.K_DOWN, pgc.K_UP]
 
 # Either 'HITS' or 'SCORES'.
-SCORING_FUNCTION = 'HITS'
+SCORING_FUNCTION = 'SCORES'
 
 class AugmentedPongPlayer(PyGamePlayer):
     """Implementation of PyGamePlayer for Pong."""
