@@ -164,7 +164,7 @@ def main():
     BIGFONT = pygame.font.Font('freesansbold.ttf', 100)
     pygame.display.set_caption('Tetromino')
 
-    # showTextScreen('Tetromino')
+    showTextScreen('Tetromino')
     while True: # game loop
         #if random.randint(0, 1) == 0:
         #    pygame.mixer.music.load('tetrisb.mid')
@@ -339,9 +339,9 @@ def showTextScreen(text):
     pressKeyRect.center = (int(WINDOWWIDTH / 2), int(WINDOWHEIGHT / 2) + 100)
     DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
 
-    # while checkForKeyPress() == None:
-    #     pygame.display.update()
-    #     FPSCLOCK.tick()
+    while checkForKeyPress() == None:
+        pygame.display.update()
+        FPSCLOCK.tick()
 
 
 def checkForQuit():
