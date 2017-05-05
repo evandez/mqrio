@@ -115,8 +115,10 @@ class DeepQLearner(object):
         Decays the exploration rate if the final exploration frame has not been reached.
         """
         if not self.is_burning_in() and self.exploration_rate > EXPLORATION_END_RATE:
-            # reduction might be too small for to store perfectly
-            self.exploration_rate = max(EXPLORATION_END_RATE, self.exploration_reduction)
+            # TODO: This is an ugly fix. Find the source of this problem.
+            self.exploration_rate = max(
+                self.exploration_rate - self.exploration_reduction,
+                EXPLORATION_END_RATE)
         return random.random() < self.exploration_rate or self.is_burning_in()
 
     def best_action(self, frame):
@@ -218,4 +220,4 @@ class DeepQLearner(object):
         # If we're using the network, print a sample of the output.
         if not self.is_burning_in():
             print('        Sample Q output:', self.net.compute_q(self.transitions[-1]['state_in']))
-            print('        Clipped loss:', self.loss)
+            print('        Loss:', self.loss)
