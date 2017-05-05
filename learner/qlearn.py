@@ -100,7 +100,7 @@ class DeepQLearner(object):
 
     def is_burning_in(self):
         """Returns true if the network is still burning in (observing transitions)."""
-        return len(self.transitions) <= REPLAY_START_SIZE
+        return len(self.transitions) < REPLAY_START_SIZE
 
     def do_explore(self):
         """Returns true if a random action should be taken, false otherwise.

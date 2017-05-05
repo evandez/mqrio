@@ -5,7 +5,7 @@ from learner.config import *
 from learner.qlearn import DeepQLearner
 
 # Possible actions for Pong. Last one is equivalent to "do nothing."
-ACTIONS = [pgc.K_DOWN, pgc.K_UP]
+ACTIONS = [pgc.K_DOWN, pgc.K_UP, pgc.K_UNKNOWN]
 
 # Either 'HITS' or 'SCORES'.
 SCORING_FUNCTION = 'SCORES'

@@ -53,6 +53,14 @@ font = pygame.font.SysFont("calibri",10)
 
 done = False
 while done==False:       
+    # movement of circle
+    time_passed = clock.tick(30)
+    time_sec = time_passed / 1000.0
+        
+    circle_x += speed_x * time_sec
+    circle_y += speed_y * time_sec
+    ai_speed = speed_circ * time_sec
+    
     for event in pygame.event.get(): # User did something
         if event.type == pygame.QUIT: # If user clicked close
             done = True # Flag that we are done so we exit this loop
@@ -86,13 +94,6 @@ while done==False:
 
     bar1_y += bar1_move
         
-    # movement of circle
-    time_passed = clock.tick(30)
-    time_sec = time_passed / 1000.0
-        
-    circle_x += speed_x * time_sec
-    circle_y += speed_y * time_sec
-    ai_speed = speed_circ * time_sec
     
     # AI of the computer.
     if circle_x >= 305.:
