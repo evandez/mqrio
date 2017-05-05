@@ -20,7 +20,7 @@ class DeepQLearner(object):
         self.net = QNet(len(actions))
         self.exploration_rate = EXPLORATION_START_RATE
         self.exploration_reduction = (EXPLORATION_START_RATE - EXPLORATION_END_RATE) \
-            / float(REPLAY_MEMORY_SIZE - REPLAY_START_SIZE + 1)
+            / float(FINAL_EXPLORATION_TIME - REPLAY_START_SIZE + 1)
         self.iteration = -1
         self.actions_taken = 0
         self.repeating_action_rewards = 0
