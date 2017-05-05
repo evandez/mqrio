@@ -41,6 +41,9 @@ COLORS      = (     BLUE,      GREEN,      RED,      YELLOW)
 LIGHTCOLORS = (LIGHTBLUE, LIGHTGREEN, LIGHTRED, LIGHTYELLOW)
 assert len(COLORS) == len(LIGHTCOLORS) # each color must have light color
 
+board = None
+blankSpaces = 0
+
 TEMPLATEWIDTH = 5
 TEMPLATEHEIGHT = 5
 
@@ -162,7 +165,7 @@ def main():
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
     BIGFONT = pygame.font.Font('freesansbold.ttf', 100)
-    pygame.display.set_caption('Tetromino')
+    #  pygame.display.set_caption('Tetromino')
 
     # showTextScreen('Tetromino')
     while True: # game loop
@@ -172,12 +175,14 @@ def main():
         #    pygame.mixer.music.load('tetrisc.mid')
         #pygame.mixer.music.play(-1, 0.0)
         runGame()
+        calculateBlackSpace()
         #pygame.mixer.music.stop()
         showTextScreen('Game Over')
 
 
 def runGame():
     # setup variables for the start of the game
+    global board
     board = getBlankBoard()
     lastMoveDownTime = time.time()
     lastMoveSidewaysTime = time.time()
@@ -501,6 +506,16 @@ def drawNextPiece(piece):
     # draw the "next" piece
     drawPiece(piece, pixelx=WINDOWWIDTH-120, pixely=100)
 
-
+def calculateBlackSpace():
+    global blankSpaces
+    global board
+    blankSpaces = 0
+    y = BOARDHEIGHT - 1
+    while y >=0:
+        for x in range(BOARDWIDTH):
+            if board[x][y] == BLANK:
+                blankSpaces -= 1
+        y -= 1
+    
 if __name__ == '__main__':
     main()
