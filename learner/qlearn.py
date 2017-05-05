@@ -14,6 +14,9 @@ class DeepQLearner(object):
 
         Args:
             actions: List of viable actions learner can make. (Must be PyGame constants.)
+            chk_path: File path to store saved weights.
+            save: If true, will save weights regularly.
+            restore: If true, will restore weights right away from chk_path.
         """
         # Initialize state variables.
         self.actions = actions
