@@ -22,6 +22,7 @@ class DeepQLearner(object):
         self.exploration_reduction = (EXPLORATION_START_RATE - EXPLORATION_END_RATE) \
             / float(REPLAY_MEMORY_SIZE - REPLAY_START_SIZE + 1)
         self.iteration = -1
+        self.actions_taken = 0
         self.repeating_action_rewards = 0
         self.loss = 0
 
@@ -38,10 +39,11 @@ class DeepQLearner(object):
         #
         # Transitions are dictionaries of the form below.
         #     {
-        #         'input': The Q-network input at this point in time.
+        #         'state_in': The Q-network input at this point in time.
         #         'action': The action index (indices) taken at this frame.
-        #         'reward': The reward from the previous action.
+        #         'reward': The reward from this action.
         #         'terminal': True if the action led to a terminal state.
+        #         'state_out': The state resulting from the given action.
         #     }
         self.transitions = deque(maxlen=REPLAY_MEMORY_SIZE)
 
@@ -173,10 +175,10 @@ class DeepQLearner(object):
 
         # Save network if necessary before updating.
         if self.save and self.iteration % SAVING_FREQUENCY == 0:
-            self.net.save(self.chk_path)
+            self.net.save(self.chk_path, self.iteration)
 
         # If not burning in, update the network.
-        if not self.is_burning_in():
+        if not self.is_burning_in() and self.actions_taken % UPDATE_FREQUENCY == 0:
             # Update network from the previous action.
             minibatch = random.sample(self.transitions, BATCH_SIZE)
             batch_frames = [trans['state_in'] for trans in minibatch]
@@ -186,6 +188,7 @@ class DeepQLearner(object):
 
         # Select the next action.
         action = self.random_action() if self.do_explore() else self.best_action(proc_frame)
+        self.actions_taken += 1
 
         # Remember the action and the input frames, reward to be observed later.
         self.remember_transition(proc_frame, action, terminal)

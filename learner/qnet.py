@@ -1,8 +1,8 @@
 """Thin wrapper around TensorFlow logic."""
+import os
 from learner.config import *
 import learner.graph as graph
 import tensorflow as tf
-import os
 
 class QNet(object):
     """A deep network Q-approximator implemented with TensorFlow.
@@ -46,17 +46,16 @@ class QNet(object):
         """
         return self.sess.run(self.graph_out, feed_dict={self.graph_in:[net_in]})[0]
 
-    def save(self, chk_path):
+    def save(self, chk_path, iteration):
         """Save the current network parameters in the checkpoint path.
 
         Args:
             chk_path: Path to store checkpoint files.
+            iteration: The current iteration of the algorithm.
         """
-        # make output directory
-        if not os.path.exists(os.path.dirname('deep_q_model/')):
-            os.makedirs(os.path.dirname('deep_q_model/'))
-
-        self.saver.save(self.sess, chk_path)
+        if not os.path.exists(os.path.dirname(chk_path)):
+            os.makedirs(os.path.dirname(chk_path))
+        self.saver.save(self.sess, chk_path, global_step=iteration)
 
     def restore(self, chk_path):
         """Restore the network from the checkpoint path.

@@ -28,12 +28,6 @@ BATCH_SIZE = 32
 # Necessary for actions to have "real" consequences in the game world.
 ACTION_REPEAT = 4
 
-# Shape of the frames to use in the network.
-FRAME_HEIGHT, FRAME_WIDTH = (84, 84)
-
-# The number of frames used in a state object.
-STATE_FRAMES = 4
-
 # Number of iterations for which we take random actions, to build a foundation
 # for our state-action-reward memory.
 REPLAY_START_SIZE = 50000
@@ -41,11 +35,20 @@ REPLAY_START_SIZE = 50000
 # Maximum size of the replay memory.
 REPLAY_MEMORY_SIZE = 100000
 
+# How many actions are to be performed between network updates.
+UPDATE_FREQUENCY = 4
+
 # How often the Q-learner should log its state.
 LOGGING_FREQUENCY = 100
+
+# How many times should the state be logged in a row.
+LOG_IN_A_ROW = 10
 
 # How often the Q-learner should save its parameters.
 SAVING_FREQUENCY = 1000
 
-# How many times should the state be logged in a row.
-LOG_IN_A_ROW = 10
+# Shape of the frames to use in the network.
+FRAME_HEIGHT, FRAME_WIDTH = (84, 84)
+
+# The number of frames used in a state object.
+STATE_FRAMES = 4
