@@ -1,9 +1,8 @@
-'Runs but still needs some work/enhancement'
 import pygame.constants as pgc
 from PyGamePlayer.pygame_player import PyGamePlayer, function_intercept
 import games.tetris
-# from learner.qlearn import DeepQLearner
-# from learner.config import *
+from learner.qlearn import DeepQLearner
+from learner.config import *
 
 
 ACTIONS = [pgc.K_UNKNOWN, pgc.K_RIGHT, pgc.K_LEFT, pgc.K_DOWN, pgc.K_UP]
@@ -13,17 +12,16 @@ class TetrisPlayer(PyGamePlayer):
         super(TetrisPlayer, self).__init__(force_game_fps=10, run_real_time=False)
         self._new_reward = 0.0
         self._terminal = False
-        # self._line_removed = False
-        # self.dql = DeepQLearner(ACTIONS,save=True)
+        
+        self.dql = DeepQLearner(ACTIONS,save=True)
 
         def add_removed_lines_to_reward(lines_removed, *args, **kwargs):
-            self._new_reward += lines_removed
-            # self._line_removed = True
+            self._new_reward += lines_removed    
             return lines_removed
 
         def check_for_game_over(ret, text):
             if text == 'Game Over':
-                self._terminal = True
+            	self._terminal = True
 
         # to get the reward we will intercept the removeCompleteLines method and store what it returns
         games.tetris.removeCompleteLines = function_intercept(games.tetris.removeCompleteLines,
@@ -37,26 +35,23 @@ class TetrisPlayer(PyGamePlayer):
         	self._terminal = False
         	return [pgc.K_SPACE]
 
-        # return  self.dql.step(screen_array, feedback, terminal)
-        return [pgc.K_DOWN]
+        return  self.dql.step(screen_array, feedback, terminal)
+        
         
     def get_feedback(self):
     	if self._terminal :
-    		terminal = self._terminal
-    		# print (terminal)
-    		return float(-25), terminal
-    	# if self._line_removed:
+            from games.tetris import blankSpaces
+            terminal = self._terminal
+            
+            # found the follwoing reward/penalty strategy in a paper. coeff is taken from the paper. Should play around with it a little
+            return float(.35*blankSpaces), terminal
+            
+    	
     	temp = self._new_reward
     	self._new_reward = 0.0
     	self.lines_removed = False
     	terminal = self._terminal
     	return temp*temp, terminal
-    	"""
-    	else :
-    		
-    			TODO :: potentially add reward for moves that don't remove lines
-    			− 0.51 × Height + 0.76 × Lines − 0.36 × Holes − 0.18 × Bumpiness 
-		"""
 
 
     def start(self):
