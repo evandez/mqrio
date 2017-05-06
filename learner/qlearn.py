@@ -237,7 +237,8 @@ class DeepQLearner(object):
         if not os.path.exists(os.path.dirname(self.chk_path)):
             os.makedirs(os.path.dirname(self.chk_path))
         self.net.saver.save(self.net.sess, self.chk_path, global_step=self.iteration)
-        np.save(self.chk_path + 'transitions', self.transitions)
+        if self.iteration % 5e6 == 0:
+            np.save(self.chk_path + 'transitions', self.transitions)
 
     def __restore(self):
         """Restore the network from the checkpoint path.
@@ -254,7 +255,7 @@ class DeepQLearner(object):
         self.net.saver.restore(self.net.sess, model_path)
         print("Network weights, exploration rate, and iteration number restored!")
         try:
-            print("Transitions restored!")
             self.transitions = np.load(self.chk_path + 'transitions.npy')
+            print("Transitions restored!")
         except EOFError:
             print("Transitions not restored.")
