@@ -179,7 +179,7 @@ class DeepQLearner(object):
         self.__observe_result(proc_frame, self.repeating_action_rewards)
 
         # Save network if necessary before updating.
-        if self.save and self.iteration % SAVING_FREQUENCY == 0:
+        if self.save and self.iteration % SAVE_FREQUENCY == 0:
             self.__save()
 
         # If not burning in, update the network.
@@ -237,7 +237,7 @@ class DeepQLearner(object):
         if not os.path.exists(os.path.dirname(self.chk_path)):
             os.makedirs(os.path.dirname(self.chk_path))
         self.net.saver.save(self.net.sess, self.chk_path, global_step=self.iteration)
-        if self.iteration % 5e6 == 0:
+        if self.iteration % TRANSITION_SAVE_FREQUENCY == 0:
             np.save(self.chk_path + 'transitions', self.transitions)
 
     def __restore(self):

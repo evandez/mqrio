@@ -39,13 +39,16 @@ REPLAY_MEMORY_SIZE = 100000
 UPDATE_FREQUENCY = 4
 
 # How often the Q-learner should log its state.
-LOGGING_FREQUENCY = 100
+LOGGING_FREQUENCY = 10000
 
 # How many times should the state be logged in a row.
-LOG_IN_A_ROW = 10
+LOG_IN_A_ROW = 4
 
 # How often the Q-learner should save its parameters.
-SAVING_FREQUENCY = 1000
+SAVE_FREQUENCY = 10000
+
+# How often the Q-learner should save its transitions (very large).
+TRANSITION_SAVE_FREQUENCY = 1000000
 
 # Shape of the frames to use in the network.
 FRAME_HEIGHT, FRAME_WIDTH = (84, 84)
