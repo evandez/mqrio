@@ -11,7 +11,8 @@ class HalfPongPlayer(PyGamePlayer):
         super(HalfPongPlayer, self).__init__(
             force_game_fps=force_game_fps,
             run_real_time=run_real_time)
-        self.last_score = 0
+        self.last_hit_count = 0
+        self.last_miss_count = 0
 
         self.dql = DeepQLearner(ACTIONS)
 
@@ -25,11 +26,12 @@ class HalfPongPlayer(PyGamePlayer):
         See parent class function.
         """
         # import must be done here because otherwise importing would cause the game to start playing
-        from games.half_pong import score
+        from games.half_pong import hit_count, miss_count
 
         # get the difference in score between this and the last run
-        score_change = (score - self.last_score)
-        self.last_score = score
+        score_change = (hit_count - self.last_hit_count) - (miss_count - self.last_miss_count)
+        self.last_miss_count = miss_count
+        self.last_hit_count = hit_count
 
         return float(score_change), score_change == -1
 
