@@ -13,7 +13,7 @@ SCREENHEIGHT = 512
 PIPEGAPSIZE  = 100 # gap between upper and lower part of pipe
 BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
-IMAGES, SOUNDS, HITMASKS = {}, {}, {}
+IMAGES, HITMASKS = {}, {}
 
 collision = False
 
@@ -86,18 +86,6 @@ def main():
     IMAGES['message'] = pygame.image.load('assets/sprites/message.png').convert_alpha()
     # base (ground) sprite
     IMAGES['base'] = pygame.image.load('assets/sprites/base.png').convert_alpha()
-
-    # sounds
-    if 'win' in sys.platform:
-        soundExt = '.wav'
-    else:
-        soundExt = '.ogg'
-
-    SOUNDS['die']    = pygame.mixer.Sound('assets/audio/die' + soundExt)
-    SOUNDS['hit']    = pygame.mixer.Sound('assets/audio/hit' + soundExt)
-    SOUNDS['point']  = pygame.mixer.Sound('assets/audio/point' + soundExt)
-    SOUNDS['swoosh'] = pygame.mixer.Sound('assets/audio/swoosh' + soundExt)
-    SOUNDS['wing']   = pygame.mixer.Sound('assets/audio/wing' + soundExt)
 
     while True:
         # select random background sprites
@@ -175,7 +163,6 @@ def showWelcomeAnimation():
                     'playerIndexGen': playerIndexGen,
                 }
         '''
-        SOUNDS['wing'].play()
         return {
             'playery': playery + playerShmVals['val'],
             'basex': basex,
@@ -243,7 +230,6 @@ def mainGame(movementInfo):
                 if playery > -2 * IMAGES['player'][0].get_height():
                     playerVelY = playerFlapAcc
                     playerFlapped = True
-                    SOUNDS['wing'].play()
 
         # check for crash here
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
@@ -274,7 +260,6 @@ def mainGame(movementInfo):
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
-                SOUNDS['point'].play()
 
         # playerIndex basex change
         if (loopIter + 1) % 3 == 0:
@@ -334,11 +319,6 @@ def showGameOverScreen(crashInfo):
     basex = crashInfo['basex']
 
     upperPipes, lowerPipes = crashInfo['upperPipes'], crashInfo['lowerPipes']
-
-    # play hit and die sounds
-    SOUNDS['hit'].play()
-    if not crashInfo['groundCrash']:
-        SOUNDS['die'].play()
 
     while True:
         # player y shift
