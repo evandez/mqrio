@@ -4,7 +4,7 @@ from PyGamePlayer.pygame_player import PyGamePlayer
 from learner.qlearn import DeepQLearner
 
 # The valid actions for pong.
-ACTIONS = [K_DOWN, K_UP]
+ACTIONS = [K_DOWN, K_UNKNOWN, K_UP]
 
 class PongPlayer(PyGamePlayer):
     """Simple implementation of PyGamePlayer for Pong."""
