@@ -2,8 +2,8 @@
 import pygame
 from pygame.locals import *
 
-miss_count = 1
-hit_count = 1
+miss_count = 0
+hit_count = 0
 
 pygame.init()
 screen_width = 84

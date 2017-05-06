@@ -63,7 +63,7 @@ class QNet(object):
         Args:
             chk_path: Path from which to restore weights.
         """
-        self.saver.restore(self.sess, tf.train.get_checkpoint_state(chk_path).model_checkpoint_path)
+        self.saver.restore(self.sess, chk_path)
 
     def update(self, batch_frames, batch_actions, batch_targets):
         """Updates the network with the given batch input/target values using RMSProp.

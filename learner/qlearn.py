@@ -6,10 +6,11 @@ from learner.config import *
 from learner.qnet import QNet
 import numpy as np
 from scipy.misc import imresize
+import tensorflow as tf
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='deep_q_model/', save=True, restore=False):
+    def __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=True):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -35,6 +36,10 @@ class DeepQLearner(object):
         if restore:
             if not os.path.exists(chk_path):
                 raise Exception('No such checkpoint path %s!' % chk_path)
+            chk_path = tf.train.get_checkpoint_state(chk_path).model_checkpoint_path
+            self.iteration = int(chk_path[(chk_path.rfind('-')+1):]) - 1
+            # set exploration rate
+            self.exploration_rate = max(EXPLORATION_END_RATE, EXPLORATION_START_RATE - self.exploration_reduction * self.iteration / 4)
             self.net.restore(chk_path)
 
         # Store all previous transitions in a deque to allow for efficient
@@ -184,7 +189,7 @@ class DeepQLearner(object):
             self.net.save(self.chk_path, self.iteration)
 
         # If not burning in, update the network.
-        if not self.is_burning_in() and self.actions_taken % UPDATE_FREQUENCY == 0:
+        if not self.is_burning_in() and self.actions_taken % UPDATE_FREQUENCY == 0 and len(self.transitions) >= REPLAY_START_SIZE:
             # Update network from the previous action.
             minibatch = random.sample(self.transitions, BATCH_SIZE)
             batch_frames = [trans['state_in'] for trans in minibatch]
