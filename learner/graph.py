@@ -13,6 +13,10 @@ G_FC1_W = 'w_fc_1'                # First fully connected layer weights.
 G_FC1_B = 'b_fc_1'                # First fully connected layer bias.
 G_FC2_W = 'w_fc_2'                # etc...
 G_FC2_B = 'b_fc_2'
+G_FC3_W = 'w_fc_3'                # etc...
+G_FC3_B = 'b_fc_3'
+G_FC4_W = 'w_fc_4'
+G_FC4_B = 'b_fc_4'
 G_OUT = 'q_value'                 # Graph output.
 
 def construct_graph(output_width):
@@ -44,13 +48,27 @@ def construct_graph(output_width):
     # TODO: Reshape this so we don't have to hardcode the the number of inputs
     # and can freely change the frame height/width.
     conv_layer3_flat = tf.reshape(conv_layer3, [-1, 7744])
+
+    # Fully connected layer 1
     w_fc1 = _weight_variable([7744, 512], G_FC1_W)
     b_fc1 = _bias_variable([512], G_FC1_B)
     fc_layer1 = tf.nn.relu(tf.matmul(conv_layer3_flat, w_fc1) + b_fc1)
 
-    w_fc2 = _weight_variable([512, output_width], G_FC2_W)
-    b_fc2 = _bias_variable([output_width], G_FC2_B)
-    graph_out = tf.add(tf.matmul(fc_layer1, w_fc2), b_fc2, name=G_OUT)
+    # Fully connected layer 2
+    w_fc2 = _weight_variable([7744, 512], G_FC2_W)
+    b_fc2 = _bias_variable([512], G_FC2_B)
+    fc_layer2 = tf.nn.relu(tf.matmul(conv_layer3_flat, w_fc2) + b_fc2)
+
+    # Bias and weights for fully connected layer 1
+    b_fc3 = _bias_variable([output_width], G_FC3_B)
+    w_fc3 = _weight_variable([512, output_width], G_FC3_W)
+    # Bias and weights for fully connected layer 2
+    b_fc4 = _bias_variable([output_width], G_FC4_B)
+    w_fc4 = _weight_variable([512, output_width], G_FC4_W)
+
+    output_fc1 = tf.add(tf.matmul(fc_layer1, w_fc3), b_fc3)
+    output_fc2 = tf.add(tf.matmul(fc_layer2, w_fc4), b_fc4)
+    graph_out = tf.add(output_fc1, output_fc2, name=G_OUT)
     return graph_in, graph_out
 
 def _conv2d(data, weights, stride):
