@@ -18,7 +18,8 @@ class HalfPongPlayer(PyGamePlayer):
 
     def get_keys_pressed(self, screen_array, reward, terminal):
         """Returns the keys to press at the given timestep. See parent class function."""
-        return self.dql.step(screen_array, reward, terminal)
+        from games.half_pong import hit_count, miss_count
+        return self.dql.step(screen_array, reward, terminal, float(hit_count / miss_count))
 
     def get_feedback(self):
         """Returns the feedback for the current state of the game. In this case, just returns
@@ -32,7 +33,6 @@ class HalfPongPlayer(PyGamePlayer):
         score_change = (hit_count - self.last_hit_count) - (miss_count - self.last_miss_count)
         self.last_miss_count = miss_count
         self.last_hit_count = hit_count
-
         return float(score_change), score_change == -1
 
     def start(self):

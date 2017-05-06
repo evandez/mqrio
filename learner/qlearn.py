@@ -106,7 +106,7 @@ class DeepQLearner(object):
         """
         if not len(self.transitions):
             return
-        self.transitions[-1]['reward'] = np.clip(reward, -1, 1)
+        self.transitions[-1]['reward'] = reward
         self.transitions[-1]['state_out'] = resulting_state
 
     def is_burning_in(self):
@@ -150,7 +150,7 @@ class DeepQLearner(object):
             target_reward += DISCOUNT * np.amax(self.net.compute_q(trans['state_out']))
         return target_reward
 
-    def step(self, frame, reward, terminal):
+    def step(self, frame, reward, terminal, score_ratio=None):
         """Steps the training algorithm given the current frame and previous reward.
         Assumes that the reward is a consequence of the previous action.
 
@@ -166,7 +166,7 @@ class DeepQLearner(object):
 
         # Log if necessary.
         if self.iteration % LOGGING_FREQUENCY < LOG_IN_A_ROW * STATE_FRAMES and self.iteration % STATE_FRAMES == 0:
-            self.log_status()
+            self.log_status(score_ratio)
 
         # Repeat previous action for some number of iterations.
         # If we ARE repeating an action, we pretend that we did not see
@@ -204,7 +204,7 @@ class DeepQLearner(object):
 
         return [action]
 
-    def log_status(self):
+    def log_status(self, score_ratio=None):
         """Print the current status of the Q-learner."""
         fmt = """
         \t\t-----------------\t\t
@@ -224,3 +224,6 @@ class DeepQLearner(object):
         if not self.is_burning_in():
             print('        Sample Q output:', self.net.compute_q(self.transitions[-1]['state_in']))
             print('        Loss:', self.loss)
+
+        if score_ratio:
+            print('        Score ratio:', score_ratio)

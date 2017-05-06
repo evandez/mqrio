@@ -2,8 +2,8 @@
 import pygame
 from pygame.locals import *
 
-miss_count = 0
-hit_count = 0
+miss_count = 1
+hit_count = 1
 
 pygame.init()
 screen_width = 84
@@ -58,13 +58,9 @@ while not done:
             elif event.key == K_DOWN:
                 bar1_move = 0.
 
-    hit_count_display = font.render(str(hit_count), True, (255,255,255))
-    miss_count_display = font.render(str(miss_count), True, (255,255,255))
     screen.blit(background, (0, 0))
     screen.blit(bar1, (bar1_x, bar1_y))
     screen.blit(circle, (circle_x, circle_y))
-    screen.blit(hit_count_display, (50,68))
-    screen.blit(miss_count_display, (50,76))
 
     bar1_y += bar1_move
 
