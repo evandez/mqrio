@@ -23,7 +23,7 @@ class QNet(object):
         self.action_idxs = tf.placeholder(tf.int32)
         actual_reward = tf.gather_nd(self.graph_out, self.action_idxs)
         self.loss = tf.reduce_mean(
-            tf.clip_by_value(tf.square(self.target_reward - actual_reward), -1, -1))
+            tf.square(self.target_reward - actual_reward))
         self.optimizer = tf.train.AdamOptimizer(LEARNING_RATE).minimize(self.loss)
 
         self.sess = tf.Session()
@@ -63,7 +63,7 @@ class QNet(object):
         Args:
             chk_path: Path from which to restore weights.
         """
-        self.saver.restore(self.sess, chk_path)
+        self.saver.restore(self.sess, tf.train.get_checkpoint_state(chk_path).model_checkpoint_path)
 
     def update(self, batch_frames, batch_actions, batch_targets):
         """Updates the network with the given batch input/target values using RMSProp.
