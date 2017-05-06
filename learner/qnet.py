@@ -1,5 +1,4 @@
 """Thin wrapper around TensorFlow logic."""
-import os
 from learner.config import *
 import learner.graph as graph
 import tensorflow as tf
@@ -45,25 +44,6 @@ class QNet(object):
             The array of network outputs.
         """
         return self.sess.run(self.graph_out, feed_dict={self.graph_in:[net_in]})[0]
-
-    def save(self, chk_path, iteration):
-        """Save the current network parameters in the checkpoint path.
-
-        Args:
-            chk_path: Path to store checkpoint files.
-            iteration: The current iteration of the algorithm.
-        """
-        if not os.path.exists(os.path.dirname(chk_path)):
-            os.makedirs(os.path.dirname(chk_path))
-        self.saver.save(self.sess, chk_path, global_step=iteration)
-
-    def restore(self, chk_path):
-        """Restore the network from the checkpoint path.
-
-        Args:
-            chk_path: Path from which to restore weights.
-        """
-        self.saver.restore(self.sess, chk_path)
 
     def update(self, batch_frames, batch_actions, batch_targets):
         """Updates the network with the given batch input/target values using RMSProp.

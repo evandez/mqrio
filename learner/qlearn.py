@@ -34,13 +34,7 @@ class DeepQLearner(object):
         self.chk_path = chk_path
         self.save = save
         if restore:
-            if not os.path.exists(chk_path):
-                raise Exception('No such checkpoint path %s!' % chk_path)
-            chk_path = tf.train.get_checkpoint_state(chk_path).model_checkpoint_path
-            self.iteration = int(chk_path[(chk_path.rfind('-')+1):]) - 1
-            # set exploration rate
-            self.exploration_rate = max(EXPLORATION_END_RATE, EXPLORATION_START_RATE - self.exploration_reduction * self.iteration / 4)
-            self.net.restore(chk_path)
+            self.__restore()
 
         # Store all previous transitions in a deque to allow for efficient
         # popping from the front and to allow for size management.
@@ -55,7 +49,7 @@ class DeepQLearner(object):
         #     }
         self.transitions = deque(maxlen=REPLAY_MEMORY_SIZE)
 
-    def normalize_frame(self, frame):
+    def __normalize_frame(self, frame):
         """Normalizes the screen array to be 84x84x1, with floating point values in
         the range [0, 1].
 
@@ -69,7 +63,7 @@ class DeepQLearner(object):
             np.mean(imresize(frame, (FRAME_HEIGHT, FRAME_WIDTH)), axis=2),
             (FRAME_HEIGHT, FRAME_WIDTH, 1))
 
-    def preprocess(self, frame):
+    def __preprocess(self, frame):
         """Resize image, pool across color channels, and normalize pixels.
 
         Args:
@@ -78,7 +72,7 @@ class DeepQLearner(object):
         Returns:
             The preprocessed frame.
         """
-        proc_frame = self.normalize_frame(frame)
+        proc_frame = self.__normalize_frame(frame)
         if not len(self.transitions):
             return np.repeat(proc_frame, STATE_FRAMES, axis=2)
         else:
@@ -86,7 +80,7 @@ class DeepQLearner(object):
                 (proc_frame, self.transitions[-1]['state_in'][:, :, -(STATE_FRAMES-1):]),
                 axis=2)
 
-    def remember_transition(self, pre_frame, action, terminal):
+    def __remember_transition(self, pre_frame, action, terminal):
         """Returns the transition dictionary for the given data. Defer recording the
         reward and resulting state until they are observed.
 
@@ -101,7 +95,7 @@ class DeepQLearner(object):
             'terminal': terminal
         })
 
-    def observe_result(self, resulting_state, reward):
+    def __observe_result(self, resulting_state, reward):
         """Records the resulting state and reward from the previous action.
         Clips reward as necessary.
 
@@ -114,7 +108,7 @@ class DeepQLearner(object):
         self.transitions[-1]['reward'] = reward
         self.transitions[-1]['state_out'] = resulting_state
 
-    def is_burning_in(self):
+    def __is_burning_in(self):
         """Returns true if the network is still burning in (observing transitions)."""
         return len(self.transitions) < REPLAY_START_SIZE
 
@@ -122,14 +116,14 @@ class DeepQLearner(object):
         """Returns true if a random action should be taken, false otherwise.
         Decays the exploration rate if the final exploration frame has not been reached.
         """
-        if not self.is_burning_in() and self.exploration_rate > EXPLORATION_END_RATE:
+        if not self.__is_burning_in() and self.exploration_rate > EXPLORATION_END_RATE:
             # TODO: This is an ugly fix. Find the source of this problem.
             self.exploration_rate = max(
                 self.exploration_rate - self.exploration_reduction,
                 EXPLORATION_END_RATE)
-        return random.random() < self.exploration_rate or self.is_burning_in()
+        return random.random() < self.exploration_rate or self.__is_burning_in()
 
-    def best_action(self, frame):
+    def __best_action(self, frame):
         """Returns the best action to perform.
 
         Args:
@@ -137,11 +131,11 @@ class DeepQLearner(object):
         """
         return self.actions[np.argmax(self.net.compute_q(frame))]
 
-    def random_action(self):
+    def __random_action(self):
         """Returns a random action to perform."""
         return self.actions[int(random.random() * len(self.actions))]
 
-    def compute_target_reward(self, trans):
+    def __compute_target_reward(self, trans):
         """Computes the target reward for the given transition.
 
         Args:
@@ -171,7 +165,7 @@ class DeepQLearner(object):
 
         # Log if necessary.
         if self.iteration % LOGGING_FREQUENCY < LOG_IN_A_ROW * STATE_FRAMES and self.iteration % STATE_FRAMES == 0:
-            self.log_status(score_ratio)
+            self.__log_status(score_ratio)
 
         # Repeat previous action for some number of iterations.
         # If we ARE repeating an action, we pretend that we did not see
@@ -181,35 +175,35 @@ class DeepQLearner(object):
             return [self.transitions[-1]['action']]
 
         # Observe the previous reward.
-        proc_frame = self.preprocess(frame)
-        self.observe_result(proc_frame, self.repeating_action_rewards)
+        proc_frame = self.__preprocess(frame)
+        self.__observe_result(proc_frame, self.repeating_action_rewards)
 
         # Save network if necessary before updating.
         if self.save and self.iteration % SAVING_FREQUENCY == 0:
-            self.net.save(self.chk_path, self.iteration)
+            self.__save()
 
         # If not burning in, update the network.
-        if not self.is_burning_in() and self.actions_taken % UPDATE_FREQUENCY == 0 and len(self.transitions) >= REPLAY_START_SIZE:
+        if not self.__is_burning_in() and self.actions_taken % UPDATE_FREQUENCY == 0 and len(self.transitions) >= REPLAY_START_SIZE:
             # Update network from the previous action.
             minibatch = random.sample(self.transitions, BATCH_SIZE)
             batch_frames = [trans['state_in'] for trans in minibatch]
             batch_actions = [trans['action'] for trans in minibatch]
-            batch_targets = [self.compute_target_reward(trans) for trans in minibatch]
+            batch_targets = [self.__compute_target_reward(trans) for trans in minibatch]
             self.loss = self.net.update(batch_frames, batch_actions, batch_targets)
 
         # Select the next action.
-        action = self.random_action() if self.do_explore() else self.best_action(proc_frame)
+        action = self.__random_action() if self.do_explore() else self.__best_action(proc_frame)
         self.actions_taken += 1
 
         # Remember the action and the input frames, reward to be observed later.
-        self.remember_transition(proc_frame, action, terminal)
+        self.__remember_transition(proc_frame, action, terminal)
 
         # Reset rewards counter for each group of 4 frames.
         self.repeating_action_rewards = 0
 
         return [action]
 
-    def log_status(self, score_ratio=None):
+    def __log_status(self, score_ratio=None):
         """Print the current status of the Q-learner."""
         fmt = """
         \t\t-----------------\t\t
@@ -219,16 +213,48 @@ class DeepQLearner(object):
         print(fmt % (
             self.iteration,
             len(self.transitions),
-            'not done' if self.is_burning_in() else 'done',
+            'not done' if self.__is_burning_in() else 'done',
             self.exploration_rate,
-            'not' if self.is_burning_in() else (
+            'not' if self.__is_burning_in() else (
                 'still' if self.exploration_rate > EXPLORATION_END_RATE else 'done')
         ))
 
         # If we're using the network, print a sample of the output.
-        if not self.is_burning_in():
+        if not self.__is_burning_in():
             print('        Sample Q output:', self.net.compute_q(self.transitions[-1]['state_in']))
             print('        Loss:', self.loss)
 
         if score_ratio:
             print('        Score ratio:', score_ratio)
+
+    def __save(self):
+        """Save the current network parameters in the checkpoint path.
+
+        Args:
+            chk_path: Path to store checkpoint files.
+            iteration: The current iteration of the algorithm.
+        """
+        if not os.path.exists(os.path.dirname(self.chk_path)):
+            os.makedirs(os.path.dirname(self.chk_path))
+        self.net.saver.save(self.net.sess, self.chk_path, global_step=self.iteration)
+        np.save(self.chk_path + 'transitions', self.transitions)
+
+    def __restore(self):
+        """Restore the network from the checkpoint path.
+
+        Args:
+            chk_path: Path from which to restore weights.
+        """
+        if not os.path.exists(self.chk_path):
+            raise Exception('No such checkpoint path %s!' % self.chk_path)
+        model_path = tf.train.get_checkpoint_state(self.chk_path).model_checkpoint_path
+        self.iteration = int(model_path[(model_path.rfind('-')+1):]) - 1
+        # set exploration rate
+        self.exploration_rate = max(EXPLORATION_END_RATE, EXPLORATION_START_RATE - self.exploration_reduction * self.iteration / 4)
+        self.net.saver.restore(self.net.sess, model_path)
+        print("Network weights, exploration rate, and iteration number restored!")
+        try:
+            print("Transitions restored!")
+            self.transitions = np.load(self.chk_path + 'transitions.npy')
+        except EOFError:
+            print("Transitions not restored.")
