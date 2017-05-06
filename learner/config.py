@@ -42,13 +42,10 @@ UPDATE_FREQUENCY = 4
 LOGGING_FREQUENCY = 10000
 
 # How many times should the state be logged in a row.
-LOG_IN_A_ROW = 4
+LOG_IN_A_ROW = 1
 
 # How often the Q-learner should save its parameters.
 SAVE_FREQUENCY = 10000
-
-# How often the Q-learner should save its transitions (very large).
-TRANSITION_SAVE_FREQUENCY = 1000000
 
 # Shape of the frames to use in the network.
 FRAME_HEIGHT, FRAME_WIDTH = (84, 84)

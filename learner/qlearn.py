@@ -28,7 +28,6 @@ class DeepQLearner(object):
         self.iteration = -1
         self.actions_taken = 0
         self.repeating_action_rewards = 0
-        self.loss = 0
 
         # Handle network save/restore.
         self.chk_path = chk_path
@@ -189,7 +188,6 @@ class DeepQLearner(object):
             batch_frames = [trans['state_in'] for trans in minibatch]
             batch_actions = [trans['action'] for trans in minibatch]
             batch_targets = [self.__compute_target_reward(trans) for trans in minibatch]
-            self.loss = self.net.update(batch_frames, batch_actions, batch_targets)
 
         # Select the next action.
         action = self.__random_action() if self.do_explore() else self.__best_action(proc_frame)
@@ -205,27 +203,22 @@ class DeepQLearner(object):
 
     def __log_status(self, score_ratio=None):
         """Print the current status of the Q-learner."""
-        fmt = """
-        \t\t-----------------\t\t
-        Iteration: %d
-        Replay capacity: %d (burn in %s)
-        Exploration rate: %.9f (%s annealing)"""
-        print(fmt % (
-            self.iteration,
-            len(self.transitions),
-            'not done' if self.__is_burning_in() else 'done',
-            self.exploration_rate,
-            'not' if self.__is_burning_in() else (
-                'still' if self.exploration_rate > EXPLORATION_END_RATE else 'done')
-        ))
+        print('        Iteration: %d' % self.iteration)
+
+        if self.__is_burning_in() or len(self.transitions) < REPLAY_MEMORY_SIZE:
+            print('        Replay capacity: %d (burn in %s)' % (len(self.transitions), 'not done' if self.__is_burning_in() else 'done'))
+
+        if self.exploration_rate > EXPLORATION_END_RATE:
+            print('        Exploration rate: %d (%s annealing)' % self.exploration_rate, 'not' if self.__is_burning_in() else 'still')
 
         # If we're using the network, print a sample of the output.
         if not self.__is_burning_in():
             print('        Sample Q output:', self.net.compute_q(self.transitions[-1]['state_in']))
-            print('        Loss:', self.loss)
 
         if score_ratio:
-            print('        Score ratio:', score_ratio)
+            print('        Score ratio: %0.9f' % score_ratio)
+            
+        print('--------------------------------------------------')
 
     def __save(self):
         """Save the current network parameters in the checkpoint path.
@@ -237,8 +230,6 @@ class DeepQLearner(object):
         if not os.path.exists(os.path.dirname(self.chk_path)):
             os.makedirs(os.path.dirname(self.chk_path))
         self.net.saver.save(self.net.sess, self.chk_path, global_step=self.iteration)
-        if self.iteration % TRANSITION_SAVE_FREQUENCY == 0:
-            np.save(self.chk_path + 'transitions', self.transitions)
 
     def __restore(self):
         """Restore the network from the checkpoint path.
@@ -254,8 +245,3 @@ class DeepQLearner(object):
         self.exploration_rate = max(EXPLORATION_END_RATE, EXPLORATION_START_RATE - self.exploration_reduction * self.iteration / 4)
         self.net.saver.restore(self.net.sess, model_path)
         print("Network weights, exploration rate, and iteration number restored!")
-        try:
-            self.transitions = np.load(self.chk_path + 'transitions.npy')
-            print("Transitions restored!")
-        except EOFError:
-            print("Transitions not restored.")
