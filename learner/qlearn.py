@@ -8,9 +8,10 @@ import numpy as np
 from scipy.misc import imresize
 import tensorflow as tf
 
+
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def     __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=False):
+    def     __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=False, duelArch=False):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -32,6 +33,8 @@ class DeepQLearner(object):
         # Handle network save/restore.
         self.chk_path = chk_path
         self.save = save
+        if duelArch:
+            restore = False
         if restore:
             self.__restore()
 
@@ -203,10 +206,10 @@ class DeepQLearner(object):
 
     def __log_status(self, score_ratio=None):
         """Print the current status of the Q-learner."""
-        print('        Iteration: %d' % self.iteration)
+        print('        Iteration: %d'.format(self.iteration))
 
         if self.__is_burning_in() or len(self.transitions) < REPLAY_MEMORY_SIZE:
-            print('        Replay capacity: %d (burn in %s)' % (len(self.transitions), 'not done' if self.__is_burning_in() else 'done'))
+            print('        Replay capacity: %d (burn in %s)'.format((len(self.transitions), 'not done') if self.__is_burning_in() else 'done'))
 
         if self.exploration_rate > EXPLORATION_END_RATE:
             print('        Exploration rate: %d (%s annealing)'.format(self.exploration_rate, 'not') if self.__is_burning_in() else 'still')

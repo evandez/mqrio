@@ -19,7 +19,8 @@ G_FC4_W = 'w_fc_4'
 G_FC4_B = 'b_fc_4'
 G_OUT = 'q_value'                 # Graph output.
 
-def construct_graph(output_width):
+
+def construct_graph(output_width, duelArch=False):
     """Creates a new TensorFlow graph with predetermined structure.
 
     Args:
@@ -62,14 +63,20 @@ def construct_graph(output_width):
     # Bias and weights for fully connected layer 1
     b_fc3 = _bias_variable([output_width], G_FC3_B)
     w_fc3 = _weight_variable([512, output_width], G_FC3_W)
-    # Bias and weights for fully connected layer 2
-    b_fc4 = _bias_variable([output_width], G_FC4_B)
-    w_fc4 = _weight_variable([512, output_width], G_FC4_W)
 
-    output_fc1 = tf.add(tf.matmul(fc_layer1, w_fc3), b_fc3)
-    output_fc2 = tf.add(tf.matmul(fc_layer2, w_fc4), b_fc4)
-    graph_out = tf.add(output_fc1, output_fc2, name=G_OUT)
+    if duelArch:
+        # Bias and weights for fully connected layer 2
+        b_fc4 = _bias_variable([output_width], G_FC4_B)
+        w_fc4 = _weight_variable([512, output_width], G_FC4_W)
+        # Outputs of both fully connected layer
+        output_fc1 = tf.add(tf.matmul(fc_layer1, w_fc3), b_fc3)
+        output_fc2 = tf.add(tf.matmul(fc_layer2, w_fc4), b_fc4)
+        graph_out = tf.add(output_fc1, output_fc2, name=G_OUT)
+    else:
+        graph_out = tf.add(tf.matmul(fc_layer1, w_fc3), b_fc3, name=G_OUT)
+
     return graph_in, graph_out
+
 
 def _conv2d(data, weights, stride):
     """Returns a TensforFlow 2D convolutional layer.
@@ -84,6 +91,7 @@ def _conv2d(data, weights, stride):
     """
     return tf.nn.conv2d(data, weights, strides=[1, stride, stride, 1], padding='SAME')
 
+
 def _weight_variable(shape, name):
     """Returns a TensforFlow weight variable.
 
@@ -95,6 +103,7 @@ def _weight_variable(shape, name):
         A TensorFlow weight variable of the given size.
     """
     return tf.Variable(tf.truncated_normal(shape, stddev=0.01), name=name)
+
 
 def _bias_variable(shape, name):
     """Returns a TensforFlow 2D bias variable.
