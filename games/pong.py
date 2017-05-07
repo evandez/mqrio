@@ -21,13 +21,13 @@ screen_width = 168
 screen_height = 84
 
 bar_width, bar_height = screen_width / 32. / 2, screen_height / 6.
-bar_dist_from_edge = screen_width / 64 / 2.
+bar_dist_from_edge = screen_width / 64. / 2
 circle_diameter = screen_height / 16.
 circle_radius = circle_diameter / 2.
 bar1_start_x, bar2_start_x = bar_dist_from_edge, screen_width - bar_dist_from_edge
 bar_start_y = (screen_height - bar_height) / 2.
 bar_max_y = screen_height - bar_height - bar_dist_from_edge
-circle_start_x, circle_start_y = (screen_width - circle_diameter), (screen_height - circle_diameter) / 2.
+circle_start_x, circle_start_y = (screen_width - circle_diameter) / 2, (screen_height - circle_diameter) / 2.
 
 screen = pygame.display.set_mode((int(screen_width), int(screen_height)), 0, 32)
 
@@ -47,20 +47,22 @@ circle.set_colorkey((0,0,0))
 
 # some definitions
 bar1_x, bar2_x = bar1_start_x , bar2_start_x
-bar1_y, bar2_y = bar_start_y , bar_start_y
+bar1_y, bar2_y = bar_start_y, bar_start_y
 circle_x, circle_y = circle_start_x, circle_start_y
 bar1_move, bar2_move = 0. , 0.
-speed_x, speed_y, speed_bar = -screen_width / 1.28, screen_width / 1.92, screen_height * 1.2
+speed_bar = screen_height * 1.2
 bar1_score, bar2_score = 0,0
+speed_x = -screen_width / 1.28 / 2
+speed_y = random.uniform(-screen_height/1.92, screen_height/1.92)
 
 clock = pygame.time.Clock()
 font = pygame.font.SysFont("calibri",8)
 
 def reset():
+    global circle_x, circle_y, bar1_y, bar2_y, circle_start_x, circle_start_y, bar_start_y, screen_width, screen_height, speed_x, speed_y
     circle_x, circle_y = circle_start_x, circle_start_y
-    bar1_y, bar2_y = bar_start_y, bar_start_y
-    speed_x = -screen_width / 1.28
-    speed_y = random.uniform(-screen_width/1.92, screen_width/1.92)
+    speed_x = -screen_width / 1.28 / 2
+    speed_y = random.uniform(-screen_height/1.92, screen_height/1.92)
 
 reset()
 
@@ -107,38 +109,37 @@ while done==False:
     elif bar2_y <= bar_dist_from_edge: bar2_y = bar_dist_from_edge
 
     # ball hits left bar
-    if circle_x < bar_dist_from_edge + bar_width:
-        if circle_y >= (bar1_y - circle_radius) and circle_y <= (bar_height + circle_radius):
+    if circle_x <= bar1_x + bar_width:
+        if circle_y >= (bar1_y - circle_radius) and circle_y <= (bar1_y + circle_radius + bar_height):
             circle_x = bar_dist_from_edge + bar_width
             speed_x = -speed_x
             hit_count += 1
                 
-    # bar hits right bar
+    # ball hits right bar
     if circle_x >= bar2_x - bar_width:
-        if circle_y >= bar2_y - circle_radius and circle_y <= (bar_height + circle_radius):
+        if circle_y >= (bar2_y - circle_radius) and circle_y <= (bar2_y + circle_radius + bar_height):
             circle_x = screen_width - bar_width
             speed_x = -speed_x
 
 
-    # bar 2 wins
+    # bar 1 loses
     if circle_x < -circle_radius:
         bar2_score += 1
         miss_count += 1
         reset()
-
-    # bar1 wins
-    elif circle_x > screen_width - circle_radius:
+    # bar 2 loses
+    elif circle_x > screen_width + circle_radius:
         bar1_score += 1
         reset()
 
-    # ball hits top
-    if circle_y <= bar_dist_from_edge:
-        speed_y = -speed_y
-        circle_y = bar_dist_from_edge
     # ball hits bottom
-    elif circle_y >= screen_height - circle_diameter - circle_radius:
+    if circle_y <= circle_radius:
         speed_y = -speed_y
-        circle_y = screen_height - circle_diameter - circle_radius
+        circle_y = circle_radius
+    # ball hits top
+    elif circle_y >= screen_height - circle_radius:
+        speed_y = -speed_y
+        circle_y = screen_height - circle_radius
 
     pygame.display.update()
             
