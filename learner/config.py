@@ -56,7 +56,7 @@ FRAME_HEIGHT, FRAME_WIDTH = (84, 84)
 STATE_FRAMES = 4
 
 # Whether to use duel architecture or not
-DUEL_ARCHITECTURE = False
+DUELLING_ARCHITECTURE = False
 
 # Where to log score ratio.
 LOG_PATH = 'score_ratio_log.txt'
