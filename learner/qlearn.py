@@ -213,7 +213,7 @@ class DeepQLearner(object):
             print('        Replay capacity: %d (burn in %s)' % (len(self.transitions), 'not done' if self.__is_burning_in() else 'done'))
 
         if self.exploration_rate > EXPLORATION_END_RATE:
-            print('        Exploration rate: %d (%s annealing)' % (self.exploration_rate, 'not' if self.__is_burning_in() else 'still'))
+            print('        Exploration rate: %0.9f (%s annealing)' % (self.exploration_rate, 'not' if self.__is_burning_in() else 'still'))
 
         # If we're using the network, print a sample of the output.
         if not self.__is_burning_in():
