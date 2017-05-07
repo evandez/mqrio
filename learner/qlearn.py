@@ -33,7 +33,7 @@ class DeepQLearner(object):
         # Handle network save/restore.
         self.chk_path = chk_path
         self.save = save
-        if DUEL_ARCHITECTURE:
+        if DUELLING_ARCHITECTURE:
             restore = False
         if restore:
             self.__restore()

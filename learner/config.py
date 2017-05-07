@@ -54,4 +54,4 @@ FRAME_HEIGHT, FRAME_WIDTH = (84, 84)
 STATE_FRAMES = 4
 
 # Whether to use duel architecture or not
-DUEL_ARCHITECTURE = False
+DUELLING_ARCHITECTURE = True
