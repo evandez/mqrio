@@ -8,9 +8,14 @@ import numpy as np
 from scipy.misc import imresize
 import tensorflow as tf
 
+
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
+<<<<<<< HEAD
     def __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=False):
+=======
+    def     __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=False):
+>>>>>>> 7bfeddd6aaee007c811d22e33c91ba76cbe579e3
         """Intializes the TensorFlow graph.
 
         Args:
@@ -32,6 +37,8 @@ class DeepQLearner(object):
         # Handle network save/restore.
         self.chk_path = chk_path
         self.save = save
+        if DUEL_ARCHITECTURE:
+            restore = False
         if restore:
             self.__restore()
 
@@ -188,6 +195,7 @@ class DeepQLearner(object):
             batch_frames = [trans['state_in'] for trans in minibatch]
             batch_actions = [trans['action'] for trans in minibatch]
             batch_targets = [self.__compute_target_reward(trans) for trans in minibatch]
+            self.net.update(batch_frames, batch_actions, batch_targets)
 
         # Select the next action.
         action = self.__random_action() if self.do_explore() else self.__best_action(proc_frame)
@@ -203,10 +211,10 @@ class DeepQLearner(object):
 
     def __log_status(self, score_ratio=None):
         """Print the current status of the Q-learner."""
-        print('        Iteration: %d' % self.iteration)
+        print('        Iteration: %d'.format(self.iteration))
 
         if self.__is_burning_in() or len(self.transitions) < REPLAY_MEMORY_SIZE:
-            print('        Replay capacity: %d (burn in %s)' % (len(self.transitions), 'not done' if self.__is_burning_in() else 'done'))
+            print('        Replay capacity: %d (burn in %s)'.format((len(self.transitions), 'not done') if self.__is_burning_in() else 'done'))
 
         if self.exploration_rate > EXPLORATION_END_RATE:
             print('        Exploration rate: %d (%s annealing)' % (self.exploration_rate, 'not' if self.__is_burning_in() else 'still'))

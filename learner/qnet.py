@@ -3,6 +3,7 @@ from learner.config import *
 import learner.graph as graph
 import tensorflow as tf
 
+
 class QNet(object):
     """A deep network Q-approximator implemented with TensorFlow.
 
