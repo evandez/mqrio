@@ -8,48 +8,63 @@
 #       but WITHOUT ANY WARRANTY; without even the implied warranty of
 #       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #       GNU General Public License for more details.
-import numpy
 import pygame
 from pygame.locals import *
-from sys import exit
 import random
-import math
 import pygame.surfarray as surfarray
 
-pygame.init()
+miss_count = 0
+hit_count = 0
 
-screen = pygame.display.set_mode((640,480),0,32)
+pygame.init()
+screen_width = 168
+screen_height = 84
+
+bar_width, bar_height = screen_width / 32. / 2, screen_height / 6.
+bar_dist_from_edge = screen_width / 64. / 2
+circle_diameter = screen_height / 16.
+circle_radius = circle_diameter / 2.
+bar1_start_x, bar2_start_x = bar_dist_from_edge, screen_width - bar_dist_from_edge
+bar_start_y = (screen_height - bar_height) / 2.
+bar_max_y = screen_height - bar_height - bar_dist_from_edge
+circle_start_x, circle_start_y = (screen_width - circle_diameter) / 2, (screen_height - circle_diameter) / 2.
+
+screen = pygame.display.set_mode((int(screen_width), int(screen_height)), 0, 32)
 
 #Creating 2 bars, a ball and background.
-back = pygame.Surface((640,480))
+back = pygame.Surface((int(screen_width),int(screen_height)))
 background = back.convert()
 background.fill((0,0,0))
-bar = pygame.Surface((10,50))
+bar = pygame.Surface((int(bar_width),int(bar_height)))
 bar1 = bar.convert()
 bar1.fill((255,255,255))
 bar2 = bar.convert()
 bar2.fill((255,255,255))
-circ_sur = pygame.Surface((15,15))
-circ = pygame.draw.circle(circ_sur,(255,255,255),(int(15/2),int(15/2)),int(15/2))
-circle = circ_sur.convert()
+circle_surface = pygame.Surface((int(circle_diameter),int(circle_diameter)))
+pygame.draw.circle(circle_surface,(255,255,255),(int(circle_radius),int(circle_radius)),int(circle_radius))
+circle = circle_surface.convert()
 circle.set_colorkey((0,0,0))
 
-
-INITIAL_SPEED_X = -250.
-
 # some definitions
-bar1_x, bar2_x = 10. , 620.
-bar1_y, bar2_y = 215. , 215.
-circle_x, circle_y = 307.5, 232.5
+bar1_x, bar2_x = bar1_start_x , bar2_start_x
+bar1_y, bar2_y = bar_start_y, bar_start_y
+circle_x, circle_y = circle_start_x, circle_start_y
 bar1_move, bar2_move = 0. , 0.
-speed_x, speed_y, speed_circ = INITIAL_SPEED_X, random.uniform(-500,500), 250.
+speed_bar = screen_height * 1.2
 bar1_score, bar2_score = 0,0
+speed_x = -screen_width / 1.28 / 2
+speed_y = random.uniform(-screen_height/1.92, screen_height/1.92)
 
-bar1_hit_count, bar2_hit_count = 0, 0
-
-#clock and font objects
 clock = pygame.time.Clock()
-font = pygame.font.SysFont("calibri",10)
+font = pygame.font.SysFont("calibri",8)
+
+def reset():
+    global circle_x, circle_y, bar1_y, bar2_y, circle_start_x, circle_start_y, bar_start_y, screen_width, screen_height, speed_x, speed_y
+    circle_x, circle_y = circle_start_x, circle_start_y
+    speed_x = -screen_width / 1.28 / 2
+    speed_y = random.uniform(-screen_height/1.92, screen_height/1.92)
+
+reset()
 
 done = False
 while done==False:       
@@ -67,22 +82,10 @@ while done==False:
             elif event.key == K_DOWN or event.key == K_s:
                 bar1_move = 0.
             
-    score1 = font.render(str(bar1_score), True,(255,255,255))
-    score2 = font.render(str(bar2_score), True,(255,255,255))
-    hit_count1 = font.render(str(bar1_hit_count), True, (255,255,255))
-    hit_count2 = font.render(str(bar2_hit_count), True, (255,255,255))
-
-
     screen.blit(background,(0,0))
-    frame = pygame.draw.rect(screen,(255,255,255),Rect((5,5),(630,470)),2)
-    middle_line = pygame.draw.aaline(screen,(255,255,255),(330,5),(330,475))
     screen.blit(bar1,(bar1_x,bar1_y))
     screen.blit(bar2,(bar2_x,bar2_y))
     screen.blit(circle,(circle_x,circle_y))
-    screen.blit(score1,(250.,210.))
-    screen.blit(score2,(380.,210.))
-    screen.blit(hit_count1, (250,240))
-    screen.blit(hit_count2, (380,240))
 
     bar1_y += bar1_move
         
@@ -92,69 +95,51 @@ while done==False:
         
     circle_x += speed_x * time_sec
     circle_y += speed_y * time_sec
-    ai_speed = speed_circ * time_sec
+    ai_speed = speed_bar * time_sec
     
     # AI of the computer.
-    if circle_x >= 305.:
-        bar2_y += random.uniform(-250,250)
-        if not bar2_y == circle_y + 7.5:
-            if bar2_y < circle_y + 7.5:
-                bar2_y += ai_speed
+    if circle_x >= screen_width / 2:
+        if not bar2_y == circle_y + circle_radius:
+            bar2_y += (circle_y - bar2_y) / 2
 
-            if  bar2_y > circle_y - 42.5:
-                bar2_y -= ai_speed
-        else:
-            bar2_y == circle_y + 7.5
+    # keep bars in bounds
+    if bar1_y >= bar_max_y: bar1_y = bar_max_y
+    elif bar1_y <= bar_dist_from_edge: bar1_y = bar_dist_from_edge
+    if bar2_y >= bar_max_y: bar2_y = bar_max_y
+    elif bar2_y <= bar_dist_from_edge: bar2_y = bar_dist_from_edge
 
-    
-    if bar1_y >= 420.: bar1_y = 420.
-    elif bar1_y <= 10. : bar1_y = 10.
-    if bar2_y >= 420.: bar2_y = 420.
-    elif bar2_y <= 10.: bar2_y = 10.
-
-    # since i don't know anything about collision, ball hitting bars goes like this.
-    if circle_x <= bar1_x + 10.:
-        if circle_y >= bar1_y - 7.5 and circle_y <= bar1_y + 42.5:
-            circle_x = 20.
+    # ball hits left bar
+    if circle_x <= bar1_x + bar_width:
+        if circle_y >= (bar1_y - circle_radius) and circle_y <= (bar1_y + circle_radius + bar_height):
+            circle_x = bar_dist_from_edge + bar_width
             speed_x = -speed_x
-            if speed_x > 0:
-                bar1_hit_count += 1
-            else:
-                bar2_hit_count += 1
+            hit_count += 1
                 
-    if circle_x >= bar2_x - 15.:
-        if circle_y >= bar2_y - 7.5 and circle_y <= bar2_y + 42.5:
-            circle_x = 605.
+    # ball hits right bar
+    if circle_x >= bar2_x - bar_width:
+        if circle_y >= (bar2_y - circle_radius) and circle_y <= (bar2_y + circle_radius + bar_height):
+            circle_x = screen_width - bar_width
             speed_x = -speed_x
-            if speed_x > 0:
-                bar1_hit_count += 1
-            else:
-                bar2_hit_count += 1
 
-    # bar 2 wins
-    if circle_x < 5.:
+
+    # bar 1 loses
+    if circle_x < -circle_radius:
         bar2_score += 1
-        circle_x, circle_y = 320., 232.5
-        bar1_y,bar_2_y = 215., 215.
-        speed_x = INITIAL_SPEED_X
-        speed_y = random.uniform(-500,500)
-
-
-    # bar1 wins
-    elif circle_x > 620.:
+        miss_count += 1
+        reset()
+    # bar 2 loses
+    elif circle_x > screen_width + circle_radius:
         bar1_score += 1
-        circle_x, circle_y = 307.5, 232.5
-        bar1_y, bar2_y = 215., 215.
-        speed_x = INITIAL_SPEED_X
-        speed_y = random.uniform(-500,500)
+        reset()
 
-    if circle_y <= 10.:
+    # ball hits bottom
+    if circle_y <= circle_radius:
         speed_y = -speed_y
-        circle_y = 10.
-
-    elif circle_y >= 457.5:
+        circle_y = circle_radius
+    # ball hits top
+    elif circle_y >= screen_height - circle_radius:
         speed_y = -speed_y
-        circle_y = 457.5
+        circle_y = screen_height - circle_radius
 
     pygame.display.update()
             

@@ -14,7 +14,7 @@ EXPLORATION_END_RATE = 0.05
 # The number of time steps that pass before the learner's exploration rate
 # decays to its final value. Determines the rate at which the exploration
 # rate decays.
-FINAL_EXPLORATION_TIME = 500000
+FINAL_EXPLORATION_TIME = 1000000
 
 # When predicting the "value" of a state and action, we discount the value
 # of potential future rewards by multiplying by this constant.
@@ -39,7 +39,9 @@ REPLAY_MEMORY_SIZE = 100000
 UPDATE_FREQUENCY = 4
 
 # How often the Q-learner should log its state.
-LOGGING_FREQUENCY = 10000
+LOG_FREQUENCY = 10000
+
+WRITE_FREQUENCY = 10000
 
 # How many times should the state be logged in a row.
 LOG_IN_A_ROW = 1
@@ -54,4 +56,10 @@ FRAME_HEIGHT, FRAME_WIDTH = (84, 84)
 STATE_FRAMES = 4
 
 # Whether to use duel architecture or not
-DUELLING_ARCHITECTURE = True
+DUEL_ARCHITECTURE = False
+
+# Where to log score ratio.
+LOG_PATH = 'score_ratio_log.txt'
+
+# Where to save and load network weights to/from.
+CHK_PATH = './deep_q_model/'

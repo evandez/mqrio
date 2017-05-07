@@ -11,7 +11,7 @@ import tensorflow as tf
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=False):
+    def __init__(self, actions, chk_path=CHK_PATH, save=True, restore=False):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -37,6 +37,9 @@ class DeepQLearner(object):
             restore = False
         if restore:
             self.__restore()
+        
+        # clear log
+        open(LOG_PATH, 'w').close()
 
         # Store all previous transitions in a deque to allow for efficient
         # popping from the front and to allow for size management.
@@ -166,7 +169,7 @@ class DeepQLearner(object):
         self.iteration += 1
 
         # Log if necessary.
-        if self.iteration % LOGGING_FREQUENCY < LOG_IN_A_ROW * STATE_FRAMES and self.iteration % STATE_FRAMES == 0:
+        if self.iteration % LOG_FREQUENCY < LOG_IN_A_ROW * STATE_FRAMES and self.iteration % STATE_FRAMES == 0:
             self.__log_status(score_ratio)
 
         # Repeat previous action for some number of iterations.
@@ -212,7 +215,7 @@ class DeepQLearner(object):
         if self.__is_burning_in() or len(self.transitions) < REPLAY_MEMORY_SIZE:
             print('        Replay capacity: %d (burn in %s)' % (len(self.transitions), 'not done' if self.__is_burning_in() else 'done'))
 
-        if self.exploration_rate > EXPLORATION_END_RATE:
+        if self.exploration_rate > EXPLORATION_END_RATE and not self.__is_burning_in():
             print('        Exploration rate: %0.9f (%s annealing)' % (self.exploration_rate, 'not' if self.__is_burning_in() else 'still'))
 
         # If we're using the network, print a sample of the output.
@@ -223,6 +226,9 @@ class DeepQLearner(object):
             print('        Score ratio: %0.9f' % score_ratio)
             
         print('--------------------------------------------------')
+
+        if self.iteration % WRITE_FREQUENCY == 0:
+            open(LOG_PATH, "a").write(str(score_ratio) + '\n')
 
     def __save(self):
         """Save the current network parameters in the checkpoint path.
