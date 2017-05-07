@@ -14,7 +14,7 @@ EXPLORATION_END_RATE = 0.05
 # The number of time steps that pass before the learner's exploration rate
 # decays to its final value. Determines the rate at which the exploration
 # rate decays.
-FINAL_EXPLORATION_TIME = 500000
+FINAL_EXPLORATION_TIME = 1000000
 
 # When predicting the "value" of a state and action, we discount the value
 # of potential future rewards by multiplying by this constant.
@@ -57,3 +57,9 @@ STATE_FRAMES = 4
 
 # Whether to use duel architecture or not
 DUEL_ARCHITECTURE = False
+
+# Where to log score ratio.
+LOG_PATH = 'score_ratio_log.txt'
+
+# Where to save and load network weights to/from.
+CHK_PATH = './deep_q_model/'

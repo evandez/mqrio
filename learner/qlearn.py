@@ -11,7 +11,7 @@ import tensorflow as tf
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=False):
+    def __init__(self, actions, chk_path=CHK_PATH, save=True, restore=False):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -37,6 +37,9 @@ class DeepQLearner(object):
             restore = False
         if restore:
             self.__restore()
+        
+        # clear log
+        open(LOG_PATH, 'w').close()
 
         # Store all previous transitions in a deque to allow for efficient
         # popping from the front and to allow for size management.
@@ -225,8 +228,7 @@ class DeepQLearner(object):
         print('--------------------------------------------------')
 
         if self.iteration % WRITE_FREQUENCY == 0:
-            with open("score_ratio_log.txt", "a") as log_file:
-                log_file.write(str(score_ratio) + '\n')
+            open(LOG_PATH, "a").write(str(score_ratio) + '\n')
 
     def __save(self):
         """Save the current network parameters in the checkpoint path.
