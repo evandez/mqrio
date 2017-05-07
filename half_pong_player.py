@@ -16,13 +16,12 @@ class HalfPongPlayer(PyGamePlayer):
         self.last_miss_count = 0
         self.starting_hit_count = 0
         self.starting_miss_count = 0
+        self.score_ratio = None
         self.dql = DeepQLearner(ACTIONS)
 
     def get_keys_pressed(self, screen_array, reward, terminal):
         """Returns the keys to press at the given timestep. See parent class function."""
-        from games.half_pong import hit_count, miss_count
-        # +1 as an easy fix for divide by 0
-        return self.dql.step(screen_array, reward, terminal, float((hit_count - self.starting_hit_count) / (miss_count - self.starting_miss_count + 1)))
+        return self.dql.step(screen_array, reward, terminal, self.score_ratio)
 
     def get_feedback(self):
         """Returns the feedback for the current state of the game. In this case, just returns
@@ -40,6 +39,8 @@ class HalfPongPlayer(PyGamePlayer):
         if self.last_miss_count % LOGGING_FREQUENCY == 0:
             self.starting_miss_count = self.last_miss_count
             self.starting_hit_count = self.last_hit_count
+        
+        self.score_ratio = float((hit_count - self.starting_hit_count) / (miss_count - self.starting_miss_count + 1))
 
         return float(score_change), score_change == -1
 
