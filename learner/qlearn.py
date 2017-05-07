@@ -191,6 +191,7 @@ class DeepQLearner(object):
             batch_frames = [trans['state_in'] for trans in minibatch]
             batch_actions = [trans['action'] for trans in minibatch]
             batch_targets = [self.__compute_target_reward(trans) for trans in minibatch]
+            self.net.update(batch_frames, batch_actions, batch_targets)
 
         # Select the next action.
         action = self.__random_action() if self.do_explore() else self.__best_action(proc_frame)
