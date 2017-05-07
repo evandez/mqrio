@@ -207,10 +207,10 @@ class DeepQLearner(object):
 
     def __log_status(self, score_ratio=None):
         """Print the current status of the Q-learner."""
-        print('        Iteration: %d'.format(self.iteration))
+        print('        Iteration: %d' % self.iteration)
 
         if self.__is_burning_in() or len(self.transitions) < REPLAY_MEMORY_SIZE:
-            print('        Replay capacity: %d (burn in %s)'.format((len(self.transitions), 'not done') if self.__is_burning_in() else 'done'))
+            print('        Replay capacity: %d (burn in %s)' % (len(self.transitions), 'not done' if self.__is_burning_in() else 'done'))
 
         if self.exploration_rate > EXPLORATION_END_RATE:
             print('        Exploration rate: %d (%s annealing)' % (self.exploration_rate, 'not' if self.__is_burning_in() else 'still'))
