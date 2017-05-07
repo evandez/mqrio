@@ -11,11 +11,7 @@ import tensorflow as tf
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-<<<<<<< HEAD
     def __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=False):
-=======
-    def     __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=False):
->>>>>>> 7bfeddd6aaee007c811d22e33c91ba76cbe579e3
         """Intializes the TensorFlow graph.
 
         Args:

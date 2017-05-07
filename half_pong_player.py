@@ -2,6 +2,7 @@
 from pygame.constants import K_DOWN, K_UP, K_UNKNOWN
 from PyGamePlayer.pygame_player import PyGamePlayer
 from learner.qlearn import DeepQLearner
+from learner.config import LOGGING_FREQUENCY
 
 ACTIONS = [K_DOWN, K_UNKNOWN, K_UP]
 
