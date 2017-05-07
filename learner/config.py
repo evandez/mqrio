@@ -30,7 +30,7 @@ ACTION_REPEAT = 4
 
 # Number of iterations for which we take random actions, to build a foundation
 # for our state-action-reward memory.
-REPLAY_START_SIZE = 100000
+REPLAY_START_SIZE = 50000
 
 # Maximum size of the replay memory.
 REPLAY_MEMORY_SIZE = 100000
