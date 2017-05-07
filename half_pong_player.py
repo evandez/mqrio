@@ -2,7 +2,7 @@
 from pygame.constants import K_DOWN, K_UP, K_UNKNOWN
 from PyGamePlayer.pygame_player import PyGamePlayer
 from learner.qlearn import DeepQLearner
-from learner.config import LOGGING_FREQUENCY
+from learner.config import LOG_FREQUENCY
 
 ACTIONS = [K_DOWN, K_UNKNOWN, K_UP]
 
@@ -36,7 +36,7 @@ class HalfPongPlayer(PyGamePlayer):
         self.last_miss_count = miss_count
         self.last_hit_count = hit_count
 
-        if self.last_miss_count % LOGGING_FREQUENCY == 0:
+        if self.last_miss_count % LOG_FREQUENCY == 0:
             self.starting_miss_count = self.last_miss_count
             self.starting_hit_count = self.last_hit_count
         

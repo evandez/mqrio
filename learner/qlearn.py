@@ -166,7 +166,7 @@ class DeepQLearner(object):
         self.iteration += 1
 
         # Log if necessary.
-        if self.iteration % LOGGING_FREQUENCY < LOG_IN_A_ROW * STATE_FRAMES and self.iteration % STATE_FRAMES == 0:
+        if self.iteration % LOG_FREQUENCY < LOG_IN_A_ROW * STATE_FRAMES and self.iteration % STATE_FRAMES == 0:
             self.__log_status(score_ratio)
 
         # Repeat previous action for some number of iterations.
@@ -212,7 +212,7 @@ class DeepQLearner(object):
         if self.__is_burning_in() or len(self.transitions) < REPLAY_MEMORY_SIZE:
             print('        Replay capacity: %d (burn in %s)' % (len(self.transitions), 'not done' if self.__is_burning_in() else 'done'))
 
-        if self.exploration_rate > EXPLORATION_END_RATE:
+        if self.exploration_rate > EXPLORATION_END_RATE and not self.__is_burning_in():
             print('        Exploration rate: %0.9f (%s annealing)' % (self.exploration_rate, 'not' if self.__is_burning_in() else 'still'))
 
         # If we're using the network, print a sample of the output.
@@ -223,6 +223,10 @@ class DeepQLearner(object):
             print('        Score ratio: %0.9f' % score_ratio)
             
         print('--------------------------------------------------')
+
+        if self.iteration % WRITE_FREQUENCY == 0:
+            with open("score_ratio_log.txt", "a") as log_file:
+                log_file.write(str(score_ratio) + '\n')
 
     def __save(self):
         """Save the current network parameters in the checkpoint path.
