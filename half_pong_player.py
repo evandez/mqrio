@@ -36,9 +36,9 @@ class HalfPongPlayer(PyGamePlayer):
         self.last_miss_count = miss_count
         self.last_hit_count = hit_count
 
-        if self.last_miss_count % 10000 == 0:
-            self.starting_miss_count = miss_count
-            self.starting_hit_count = hit_count
+        if self.last_miss_count % LOGGING_FREQUENCY == 0:
+            self.starting_miss_count = self.last_miss_count
+            self.starting_hit_count = self.last_hit_count
 
         return float(score_change), score_change == -1
 
