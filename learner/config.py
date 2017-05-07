@@ -52,3 +52,6 @@ FRAME_HEIGHT, FRAME_WIDTH = (84, 84)
 
 # The number of frames used in a state object.
 STATE_FRAMES = 4
+
+# Whether to use duel architecture or not
+DUEL_ARCHITECTURE = False

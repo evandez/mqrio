@@ -20,7 +20,7 @@ G_FC4_B = 'b_fc_4'
 G_OUT = 'q_value'                 # Graph output.
 
 
-def construct_graph(output_width, duelArch=False):
+def construct_graph(output_width):
     """Creates a new TensorFlow graph with predetermined structure.
 
     Args:
@@ -64,7 +64,7 @@ def construct_graph(output_width, duelArch=False):
     b_fc3 = _bias_variable([output_width], G_FC3_B)
     w_fc3 = _weight_variable([512, output_width], G_FC3_W)
 
-    if duelArch:
+    if DUEL_ARCHITECTURE:
         # Bias and weights for fully connected layer 2
         b_fc4 = _bias_variable([output_width], G_FC4_B)
         w_fc4 = _weight_variable([512, output_width], G_FC4_W)

@@ -11,7 +11,7 @@ import tensorflow as tf
 
 class DeepQLearner(object):
     """Provides wrapper around TensorFlow for Deep Q-Network."""
-    def     __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=False, duelArch=False):
+    def     __init__(self, actions, chk_path='./deep_q_model/', save=True, restore=False):
         """Intializes the TensorFlow graph.
 
         Args:
@@ -33,7 +33,7 @@ class DeepQLearner(object):
         # Handle network save/restore.
         self.chk_path = chk_path
         self.save = save
-        if duelArch:
+        if DUEL_ARCHITECTURE:
             restore = False
         if restore:
             self.__restore()
