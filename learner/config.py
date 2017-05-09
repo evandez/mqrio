@@ -18,7 +18,7 @@ FINAL_EXPLORATION_TIME = 1000000
 
 # When predicting the "value" of a state and action, we discount the value
 # of potential future rewards by multiplying by this constant.
-DISCOUNT = 0.99
+DISCOUNT = 0.9
 
 # When the network's parameters are updated, we sample this many previous
 # state-action-reward triples to use as a training set for the network.
@@ -41,13 +41,14 @@ UPDATE_FREQUENCY = 4
 # How often the Q-learner should log its state.
 LOG_FREQUENCY = 10000
 
+# How often to write to log file.
 WRITE_FREQUENCY = 10000
 
 # How many times should the state be logged in a row.
 LOG_IN_A_ROW = 1
 
 # How often the Q-learner should save its parameters.
-SAVE_FREQUENCY = 10000
+SAVE_FREQUENCY = 500000
 
 # Shape of the frames to use in the network.
 FRAME_HEIGHT, FRAME_WIDTH = (84, 84)
@@ -57,6 +58,8 @@ STATE_FRAMES = 4
 
 # Whether to use duel architecture or not
 DUELLING_ARCHITECTURE = False
+
+POOLING_ARCHITECTURE = False
 
 # Where to log score ratio.
 LOG_PATH = 'score_ratio_log.txt'
