@@ -56,9 +56,10 @@ FRAME_HEIGHT, FRAME_WIDTH = (84, 84)
 # The number of frames used in a state object.
 STATE_FRAMES = 4
 
-# Whether to use duel architecture or not
-DUELLING_ARCHITECTURE = False
+# Whether to use duel architecture or not.
+DUELING_ARCHITECTURE = False
 
+# Whether to include pooling layers or not.
 POOLING_ARCHITECTURE = False
 
 # Where to log score ratio.

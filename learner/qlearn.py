@@ -33,12 +33,12 @@ class DeepQLearner(object):
         # Handle network save/restore.
         self.chk_path = chk_path
         self.save = save
-        if DUELLING_ARCHITECTURE:
+        if DUELING_ARCHITECTURE:
             restore = False
         if restore:
             self.__restore()
-        
-        # clear log
+
+        # Clear the log.
         open(LOG_PATH, 'w').close()
 
         # Store all previous transitions in a deque to allow for efficient
@@ -224,7 +224,7 @@ class DeepQLearner(object):
 
         if score_ratio:
             print('        Score ratio: %0.9f' % score_ratio)
-            
+
         print('--------------------------------------------------')
 
         if self.iteration % WRITE_FREQUENCY == 0:
@@ -251,7 +251,11 @@ class DeepQLearner(object):
             raise Exception('No such checkpoint path %s!' % self.chk_path)
         model_path = tf.train.get_checkpoint_state(self.chk_path).model_checkpoint_path
         self.iteration = int(model_path[(model_path.rfind('-')+1):]) - 1
-        # set exploration rate
-        self.exploration_rate = max(EXPLORATION_END_RATE, EXPLORATION_START_RATE - self.exploration_reduction * self.iteration / 4)
+
+        # Set the exploration rate.
+        self.exploration_rate = max(
+            EXPLORATION_END_RATE,
+            EXPLORATION_START_RATE - self.exploration_reduction * self.iteration / 4)
+
         self.net.saver.restore(self.net.sess, model_path)
         print("Network weights, exploration rate, and iteration number restored!")

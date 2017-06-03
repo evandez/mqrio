@@ -2,6 +2,7 @@
 from learner.config import *
 import tensorflow as tf
 
+
 G_IN = 'frame_input'              # The graph input (84x84x4 frame sets).
 G_CONV1_W = 'w_conv_1'            # First convolutional layer weights.
 G_CONV1_B = 'b_conv_1'            # First convolutional layer bias
@@ -40,7 +41,7 @@ def construct_graph(output_width):
     b_conv2 = _bias_variable([64], G_CONV2_B)
     w_conv3 = _weight_variable([3, 3, 64, 64], G_CONV3_W)
     b_conv3 = _bias_variable([64], G_CONV3_B)
-    
+
     if POOLING_ARCHITECTURE:
         conv_layer1 = tf.nn.relu(_conv2d(graph_in, w_conv1, 4) + b_conv1)
         pool_layer1 = _pool(conv_layer1)
@@ -76,23 +77,29 @@ def construct_graph(output_width):
         b_fc1 = _bias_variable([512], G_FC1_B)
         fc_layer1 = tf.nn.relu(tf.matmul(conv_layer3_flat, w_fc1) + b_fc1)
 
-        if DUELLING_ARCHITECTURE:
+        if DUELING_ARCHITECTURE:
             # Convolutional layer 3 to fully connected layer 2
             w_fc2 = _weight_variable([7744, 512], G_FC2_W)
             b_fc2 = _bias_variable([512], G_FC2_B)
             fc_layer2 = tf.nn.relu(tf.matmul(conv_layer3_flat, w_fc2) + b_fc2)
+
             # Bias and weights for fully connected layer 3 (value function) to output layer
             w_fc3 = _weight_variable([512, 1], G_FC3_W)
             b_fc3 = _bias_variable([1], G_FC3_B)
             value_function = tf.nn.relu(tf.matmul(fc_layer1, w_fc3) + b_fc3)
+
             # Bias and weights for fully connected layer 4 (advantage function) to output layer
             w_fc4 = _weight_variable([512, output_width], G_FC4_W)
             b_fc4 = _bias_variable([output_width], G_FC4_B)
             advantage_function = tf.nn.relu(tf.matmul(fc_layer2, w_fc4) + b_fc4)
+
             # Keep track of the max advantage value
             max_advantage = tf.reduce_max(advantage_function)
+
             # Output = (adv - max_adv) + value_function
-            graph_out = tf.convert_to_tensor(advantage_function - max_advantage + value_function, name=G_OUT)
+            graph_out = tf.convert_to_tensor(
+                advantage_function - max_advantage + value_function,
+                name=G_OUT)
         else:
             # Bias and weights for fully connected layer 1
             w_fc2 = _weight_variable([512, output_width], G_FC2_W)
@@ -115,14 +122,21 @@ def _conv2d(data, weights, stride):
     """
     return tf.nn.conv2d(data, weights, strides=[1, stride, stride, 1], padding='SAME')
 
+
 def _pool(data, stride=2):
     """Returns a TensforFlow pooling layer.
+
     Args:
         data: The input tensor to the pooling layer.
+
     Returns:
         The TensorFlow pooling layer.
     """
-    return tf.nn.max_pool(data, ksize=[1, stride, stride, 1], strides=[1, stride, stride, 1], padding='SAME')
+    return tf.nn.max_pool(
+        data,
+        ksize=[1, stride, stride, 1],
+        strides=[1, stride, stride, 1],
+        padding='SAME')
 
 
 def _weight_variable(shape, name):
