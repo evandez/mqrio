@@ -4,7 +4,9 @@ from PyGamePlayer.pygame_player import PyGamePlayer
 from learner.qlearn import DeepQLearner
 from learner.config import LOG_FREQUENCY
 
+
 ACTIONS = [K_DOWN, K_UNKNOWN, K_UP]
+
 
 class HalfPongPlayer(PyGamePlayer):
     """Simple implementation of PyGamePlayer for Half Pong."""
@@ -25,8 +27,7 @@ class HalfPongPlayer(PyGamePlayer):
 
     def get_feedback(self):
         """Returns the feedback for the current state of the game. In this case, just returns
-        the difference in the learner's score minus the difference in the other player's score.
-        See parent class function.
+        the change in the learner's score. See parent class function.
         """
         # import must be done here because otherwise importing would cause the game to start playing
         from games.half_pong import hit_count, miss_count
@@ -49,8 +50,4 @@ class HalfPongPlayer(PyGamePlayer):
     def start(self):
         super(HalfPongPlayer, self).start()
         import games.half_pong
-
-
-if __name__ == '__main__':
-    HalfPongPlayer().start()
     

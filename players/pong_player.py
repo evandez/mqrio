@@ -3,12 +3,14 @@ from pygame.constants import K_DOWN, K_UP, K_UNKNOWN
 from PyGamePlayer.pygame_player import PyGamePlayer
 from learner.qlearn import DeepQLearner
 
+
 # The valid actions for pong.
 ACTIONS = [K_DOWN, K_UNKNOWN, K_UP]
 
 
 class PongPlayer(PyGamePlayer):
     """Simple implementation of PyGamePlayer for Pong."""
+
     def __init__(self, force_game_fps=10, run_real_time=False):
         """Store necessary state information. See init function for superclass."""
         super(PongPlayer, self).__init__(
@@ -28,10 +30,10 @@ class PongPlayer(PyGamePlayer):
         the difference in the learner's score minus the difference in the other player's score.
         See parent class function.
         """
-        # import must be done here because otherwise importing would cause the game to start playing
+        # Import must be done here because it starts the game.
         from games.pong import bar1_score, bar2_score
 
-        # get the difference in score between this and the last run
+        # Get the difference in score between this and the last run.
         score_change = (bar1_score - self.last_bar1_score) - (bar2_score - self.last_bar2_score)
         self.last_bar1_score = bar1_score
         self.last_bar2_score = bar2_score
@@ -42,6 +44,3 @@ class PongPlayer(PyGamePlayer):
         """Starts the learner and game."""
         super(PongPlayer, self).start()
         import games.pong
-
-if __name__ == '__main__':
-    PongPlayer().start()

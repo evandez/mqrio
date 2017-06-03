@@ -21,20 +21,20 @@ collision = False
 PLAYERS_LIST = (
     # red bird
     (
-        'assets/sprites/redbird-upflap.png',
-        'assets/sprites/redbird-midflap.png',
-        'assets/sprites/redbird-downflap.png',
+        'games/flappy_bird/assets/sprites/redbird-upflap.png',
+        'games/flappy_bird/assets/sprites/redbird-midflap.png',
+        'games/flappy_bird/assets/sprites/redbird-downflap.png',
     ),
 )
 
 # list of backgrounds
 BACKGROUNDS_LIST = (
-    'assets/sprites/background-day.png',
+    'games/flappy_bird/assets/sprites/background-day.png',
 )
 
 # list of pipes
 PIPES_LIST = (
-    'assets/sprites/pipe-green.png',
+    'games/flappy_bird/assets/sprites/pipe-green.png',
 )
 
 
@@ -53,24 +53,24 @@ def main():
 
     # numbers sprites for score display
     IMAGES['numbers'] = (
-        pygame.image.load('assets/sprites/0.png').convert_alpha(),
-        pygame.image.load('assets/sprites/1.png').convert_alpha(),
-        pygame.image.load('assets/sprites/2.png').convert_alpha(),
-        pygame.image.load('assets/sprites/3.png').convert_alpha(),
-        pygame.image.load('assets/sprites/4.png').convert_alpha(),
-        pygame.image.load('assets/sprites/5.png').convert_alpha(),
-        pygame.image.load('assets/sprites/6.png').convert_alpha(),
-        pygame.image.load('assets/sprites/7.png').convert_alpha(),
-        pygame.image.load('assets/sprites/8.png').convert_alpha(),
-        pygame.image.load('assets/sprites/9.png').convert_alpha()
+        pygame.image.load('games/flappy_bird/assets/sprites/0.png').convert_alpha(),
+        pygame.image.load('games/flappy_bird/assets/sprites/1.png').convert_alpha(),
+        pygame.image.load('games/flappy_bird/assets/sprites/2.png').convert_alpha(),
+        pygame.image.load('games/flappy_bird/assets/sprites/3.png').convert_alpha(),
+        pygame.image.load('games/flappy_bird/assets/sprites/4.png').convert_alpha(),
+        pygame.image.load('games/flappy_bird/assets/sprites/5.png').convert_alpha(),
+        pygame.image.load('games/flappy_bird/assets/sprites/6.png').convert_alpha(),
+        pygame.image.load('games/flappy_bird/assets/sprites/7.png').convert_alpha(),
+        pygame.image.load('games/flappy_bird/assets/sprites/8.png').convert_alpha(),
+        pygame.image.load('games/flappy_bird/assets/sprites/9.png').convert_alpha()
     )
 
     # game over sprite
-    IMAGES['gameover'] = pygame.image.load('assets/sprites/gameover.png').convert_alpha()
+    IMAGES['gameover'] = pygame.image.load('games/flappy_bird/assets/sprites/gameover.png').convert_alpha()
     # message sprite for welcome screen
-    IMAGES['message'] = pygame.image.load('assets/sprites/message.png').convert_alpha()
+    IMAGES['message'] = pygame.image.load('games/flappy_bird/assets/sprites/message.png').convert_alpha()
     # base (ground) sprite
-    IMAGES['base'] = pygame.image.load('assets/sprites/base.png').convert_alpha()
+    IMAGES['base'] = pygame.image.load('games/flappy_bird/assets/sprites/base.png').convert_alpha()
 
     # select random background sprites
     randBg = random.randint(0, len(BACKGROUNDS_LIST) - 1)
