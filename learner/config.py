@@ -42,7 +42,7 @@ UPDATE_FREQUENCY = 4
 LOG_FREQUENCY = 10000
 
 # How often to write to log file.
-WRITE_FREQUENCY = 10000
+LOG_WRITE_FREQUENCY = 10000
 
 # How many times should the state be logged in a row.
 LOG_IN_A_ROW = 1
